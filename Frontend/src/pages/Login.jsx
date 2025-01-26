@@ -1,12 +1,15 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as yup from "yup";
-import InputField from "./components/InputField";
-import Button from "./components/Button";
+import InputField from "../components/InputField.jsx";
+import Button from "../components/Button.jsx";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../API/authentication.js";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function Login() {
   const [isDeveloper, setIsDeveloper] = useState(true);
+  const navigate = useNavigate();
 
   const initialValues = {
     email: "",
@@ -26,6 +29,14 @@ export default function Login() {
 
   const onSubmit = (values) => {
     console.log(values);
+    login({ ...values, role: isDeveloper ? "Developer" : "Employer" })
+      .then(() => {
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log("there is error in login");
+        toast.error(error.response.data.message);
+      });
   };
 
   return (
@@ -97,10 +108,15 @@ export default function Login() {
         </button>
         <hr className="text-gray-400 my-4" />
         <p className="text-center">
-          <span>New user?{" "}
-          <Link to="/signin" className="underline text-blue-700">SignIn</Link></span>
+          <span>
+            New user?{" "}
+            <Link to="/signin" className="underline text-blue-700">
+              SignIn
+            </Link>
+          </span>
         </p>
       </div>
+      <ToastContainer />
     </div>
   );
 }

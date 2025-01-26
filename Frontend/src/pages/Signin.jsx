@@ -1,16 +1,21 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as yup from "yup";
-import InputField from "./components/InputField";
-import Button from "./components/Button";
+import InputField from "../components/InputField";
+import Button from "../components/Button";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { signin } from "../API/authentication";
+import { ToastContainer, toast } from "react-toastify";
+
 
 export default function Login() {
   const [isDeveloper, setIsDeveloper] = useState(true);
+  const navigate = useNavigate()
 
   const initialValues = {
     email: "",
     password: "",
+    confirmPassword: ""
   };
 
   const validationSchema = yup.object({
@@ -22,15 +27,27 @@ export default function Login() {
       .string()
       .min(6, "password too short")
       .required("enter password"),
-      confirmPassword: yup
+    confirmPassword: yup
       .string()
       .min(6, "password too short")
       .required("confirm password")
-      .oneOf([yup.ref('password'), null], "passwords must match")
+      .oneOf([yup.ref("password"), null], "passwords must match"),
   });
 
   const onSubmit = (values) => {
     console.log(values);
+    signin({
+      email: values.email,
+      password: values.password,
+      role: isDeveloper ? "Developer" : "Employer",
+    })
+      .then(() => {
+        navigate("/WaitEmailVerify", { state: { email:values.email } });
+      })
+      .catch((error) => {
+        console.log("there is error in signin->", error);
+        toast.error(error?.response?.data?.message);
+      });
   };
 
   return (
@@ -66,7 +83,10 @@ export default function Login() {
         >
           {(formikProps) => {
             return (
-              <Form className="flex flex-col py-5 gap-6" onSubmit={formikProps.handleSubmit}>
+              <Form
+                className="flex flex-col py-5 gap-6"
+                onSubmit={formikProps.handleSubmit}
+              >
                 <InputField
                   label="Email Address"
                   type="email"
@@ -89,9 +109,10 @@ export default function Login() {
                   required
                 />
 
-                <Button type="submit" value="Signin"/>
-                <p className="text-center underline"><Link to="/login">LogIn</Link></p>
-                
+                <Button type="submit" value="Signin" />
+                <p className="text-center underline">
+                  <Link to="/login">LogIn</Link>
+                </p>
               </Form>
             );
           }}

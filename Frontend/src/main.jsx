@@ -3,9 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import App from './App.jsx'
-import Signin from './Signin.jsx'
-import Login from './Login.jsx'
-import LandingPage from './LandingPage.jsx'
+import Signin from './pages/Signin.jsx'
+import Login from './pages/Login.jsx'
+import LandingPage from './pages/LandingPage.jsx'
+import VerifyWait from './pages/VerifyWait.jsx'
+import VerifyEmail from './pages/VerifyEmail.jsx'
 
 const Router = createBrowserRouter([
   {
@@ -13,14 +15,20 @@ const Router = createBrowserRouter([
     element: <App/>,
     children:[
       {
-        path:"/",
+        path:"",
         element: <LandingPage/>
       },{
-        path:"/Login",
+        path:"Login",
         element: <Login/>
       },{
         path:"Signin",
         element:<Signin/>
+      },{
+        path:"WaitEmailVerify",
+        element:<VerifyWait/>
+      },{
+        path: "verify-email",
+        element:<VerifyEmail/>
       }
     ]
   }
