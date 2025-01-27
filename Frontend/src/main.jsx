@@ -8,6 +8,7 @@ import Login from './pages/Login.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import VerifyWait from './pages/VerifyWait.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
+import Newpage from './pages/Newpage.jsx'
 
 const Router = createBrowserRouter([
   {
@@ -29,7 +30,11 @@ const Router = createBrowserRouter([
       },{
         path: "verify-email",
         element:<VerifyEmail/>
-      }
+      },
+      {
+        path: "Newpage",
+        element:<Newpage/>
+      },
     ]
   }
 ])

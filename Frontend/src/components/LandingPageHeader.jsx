@@ -7,6 +7,8 @@ export default function LandingPageHeader(){
             <Link to="/login" className="underline">Login </Link>
             <p className="mx-1">|</p>
             <Link to="/signin" className="underline"> Signin</Link>
+            <p className="mx-1">|</p>
+            <Link to="/Newpage" className="underline"> Newpage</Link>
         </div>
     </header>
 }
