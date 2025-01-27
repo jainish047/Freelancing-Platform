@@ -160,6 +160,8 @@ export async function login(req, res) {
     return res.status(404).send({ message: "No such user exist" });
   if (user.password !== dbuser.password)
     return res.status(400).send({ message: "Invalid password" });
+  if (!dbuser.emailVerified)
+    return res.status(401).send({message:"Please verify your email"})
 
   // generating access token
   const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
