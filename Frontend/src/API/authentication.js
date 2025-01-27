@@ -1,4 +1,3 @@
-import axios from "axios";
 import { api, setAuthToken } from "./axiosConfig";
 
 // Function to handle login (set token after successful login)

@@ -8,8 +8,9 @@ import { signin } from "../API/authentication";
 import { ToastContainer, toast } from "react-toastify";
 
 
-export default function Login() {
+export default function Signin() {
   const [isDeveloper, setIsDeveloper] = useState(true);
+  const [isCompany, setIsCompany] = useState(false)
   const navigate = useNavigate()
 
   const initialValues = {

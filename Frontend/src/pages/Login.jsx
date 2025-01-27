@@ -34,6 +34,8 @@ export default function Login() {
         navigate("/");
       })
       .catch((error) => {
+        if(error.status===403)
+          navigate("/WaitEmailVerify", {state:{ email:values.email }})  // change needed
         console.log("there is error in login");
         toast.error(error.response.data.message);
       });

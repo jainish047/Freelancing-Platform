@@ -41,6 +41,8 @@ model clientIndividual{
   location String
   active Boolean
   dateJoined DateTime @default(now())
+  emailVerified Boolean @default(false)
+  phoneNumberVerified Boolean @default(false)
 }
 
 model clientOrganization{
@@ -52,4 +54,31 @@ model clientOrganization{
   bio String
   industry String
   dateJoined DateTime @default(now())
+  emailVerified Boolean @default(false)
+  phoneNumberVerified Boolean @default(false)
+}
+
+model Project{
+  project_id String @id @default(uuid()) @map("project_id")
+  client_type  ClientType @map("client_type")
+  client_id  String  @map("client_id")
+  title String  @db.VarChar(255)
+  description  String @db.Text
+  budget      Decimal       @db.Decimal(10, 2)
+  status      ProjectStatus @default(OPEN)
+  created_at  DateTime      @default(now()) @map("created_at")
+  updated_at  DateTime      @updatedAt @map("updated_at")
+
+  @@map("project")
+}
+
+enum ClientType{
+  Individual
+  COMPANY
+}
+
+enum ProjectStatus{
+  OPEN
+  IN_PROGRESS
+  COMPLETED
 }

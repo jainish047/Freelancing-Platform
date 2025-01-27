@@ -1,13 +1,14 @@
 import { Outlet } from "react-router-dom";
+import {UserProvider} from "./context/userContext";
 
 function App() {
-
-
   return (
     <>
-      <Outlet/>
+      <UserProvider>
+        <Outlet />
+      </UserProvider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

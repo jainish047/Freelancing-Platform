@@ -28,9 +28,9 @@ export default function verifyWait() {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="mt-10 p-10 flex justify-center items-center">
-        <p>We have sent verification email to your email:{email}</p>
-        <div>
+      <div className="mt-10 p-10 flex-col gap-2 justify-center items-center">
+        <p>We have sent verification email to your email : {email}</p>
+        <div className="my-3 flex gap-2">
           <button
             className="bg-gray-500 rounded w-full p-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-gray-400 hover:bg-gray-600 active:bg-gray-700 text-white"
             onClick={() => {
