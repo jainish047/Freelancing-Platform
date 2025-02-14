@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
+
 import App from './App.jsx'
 import Signin from './pages/Signin.jsx'
 import Login from './pages/Login.jsx'
@@ -9,6 +10,7 @@ import LandingPage from './pages/LandingPage.jsx'
 import VerifyWait from './pages/VerifyWait.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
 import Newpage from './pages/Newpage.jsx'
+// import Profile from './pages/Profile.jsx'
 
 const Router = createBrowserRouter([
   {
@@ -35,6 +37,10 @@ const Router = createBrowserRouter([
         path: "Newpage",
         element:<Newpage/>
       },
+      // {
+      //   path: "Profile",
+      //   element:<Profile/>
+      // }
     ]
   }
 ])

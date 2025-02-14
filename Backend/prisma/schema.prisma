@@ -31,15 +31,15 @@ model developer{
 
 model clientIndividual{
   id String @id @default(uuid())
-  organization Boolean
-  fname String
-  lname String
+  organization Boolean?
+  fname String?
+  lname String?
   email String @unique
   password String
-  phoneNumber String
-  bio String
-  location String
-  active Boolean
+  phoneNumber String?
+  bio String?
+  location String?
+  active Boolean?
   dateJoined DateTime @default(now())
   emailVerified Boolean @default(false)
   phoneNumberVerified Boolean @default(false)
@@ -49,13 +49,15 @@ model clientOrganization{
   id String @id @default(uuid())
   companyName String @unique
   email String @unique
-  phoneNumber String
-  website String
-  bio String
-  industry String
+  password String
+  phoneNumber String?
+  website String?
+  bio String?
+  industry String?
   dateJoined DateTime @default(now())
   emailVerified Boolean @default(false)
   phoneNumberVerified Boolean @default(false)
+  active Boolean?
 }
 
 model Project{

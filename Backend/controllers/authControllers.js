@@ -48,40 +48,69 @@ const sendVerificationEmail = async (email, role, type, res) => {
 };
 
 export async function signin(req, res) {
-  const { email, password, role, type } = req.body;
+  try{
+    console.log(req.body);
+  const { email, password, role, type, companyName } = req.body;
 
-  console.log(email, "tried to signin");
+  console.log(email, " tried to signin");
 
   // empty fields
   if (!email || !password || email === "" || password === "")
     return res.status(400).send({ message: "Invalid email or password" });
+  if (
+    role === person.employer &&
+    type === person.type.organization &&
+    (!companyName || companyName === "")
+  )
+    return res.status(400).send({ message: "Invalid Company name" });
 
-  // check if already exist
-  const table = await getTable(role, type)
-  if(!table) res.status(400).send({ message: "invalid role" })
-  
+  const table = getTable(role, type);
+  if (!table) res.status(400).send({ message: "invalid role" });
+  // console.log("table->", table)
   // check if user already exist
-  const existingUser = await table.findUnique({
+  const existingUser = await table.findFirst({
     where: {
-      email: email,
+      OR: [{ email: email }, { companyName: companyName }],
     },
   });
+  console.log("existing user:->", existingUser)
   if (existingUser)
-    return res.status(409).send({ message: "User already exists" });
+    return res
+      .status(409)
+      .send({ message: "Email/Company name already exists" });
 
   // Save new user to the database
-  const newUser = await getTable(role, type).create({
-    data: {
-      email: email,
+  let newUser;
+  try{
+    if(role===person.employer && type===person.type.organization){
+      newUser = await table.create({
+        data: {
+          email: email,
+          password: password,
+          companyName: companyName,
+        },
+      });
+    }else{
+      newUser = await table.create({
+        data: {
+          email: email,
+          password: password,
+        },
+      });
+    }
+  }catch(err){
+    console.log("error creating user->", err)
+  }
 
-      password: password,
-    },
-  });
+  console.log("newUser:->", newUser)
+
   if (!newUser)
     return res.status(400).send({ message: "User could not be created" });
 
   sendVerificationEmail(email, role, type, res);
-
+  }catch(error){
+    return res.status(400).send({ message: "Something went wrong" });
+  }
   //   return res.status(201).send({ message: "User created successfully", user: newUser });
 }
 
@@ -95,8 +124,7 @@ export async function verifyEmail(req, res) {
     const { email, role, type } = decoded;
 
     const table = getTable(role, type);
-    if(!table)
-      return res.status(400).send({ message: "invalid role" })
+    if (!table) return res.status(400).send({ message: "invalid role" });
 
     console.log(email, " ", role, " ", type, "is verifying");
 
@@ -127,16 +155,15 @@ export async function verifyEmail(req, res) {
   }
 }
 
-export async function resendVerificationEMail() {
+export async function resendVerificationEMail(req, res) {
   const { email, role, type } = req.body;
 
-  const table = getTable(role, type)
-  if(!table)
-    res.status(400).send({message:"Invalid role"})
+  const table = getTable(role, type);
+  console.log(table);
+  if (!table) return res.status(400).send({ message: "Invalid role" });
 
   const user = exist(email, table);
-  if(user)
-    res.status(404).send({message:"User not found"})
+  if (user) return res.status(404).send({ message: "User not found" });
 
   if (user.emailVerified)
     return res.status(400).json({ message: "Email is already verified." });
@@ -150,27 +177,25 @@ export async function login(req, res) {
   console.log("email:", email);
   console.log("password:", password);
   if (!email || !password)
-    res.status(401).send({ message: "Invalid credentials" });
+    return res.status(401).send({ message: "Invalid credentials" });
 
   // user-data from client
   const user = {
     email,
     password,
     role,
-    type
+    type,
   };
 
-  const table= await getTable(role, type)
-  if(!table)
-    return res.status(404).send({ message: "Invalid role" });
+  const table = await getTable(role, type);
+  if (!table) return res.status(404).send({ message: "Invalid role" });
 
   const dbuser = await table.findUnique({
     where: {
       email: email,
     },
   });
-  if(!dbuser)
-    return res.status(404).send({ message: "No such user exist" });
+  if (!dbuser) return res.status(404).send({ message: "No such user exist" });
 
   console.log(user.email, "tried to login");
 
@@ -182,7 +207,10 @@ export async function login(req, res) {
     return res.status(403).send({ message: "Please verify your email" });
 
   // generating access token
-  const accessToken = jwt.sign({email, role, type}, process.env.ACCESS_TOKEN_SECRET);
+  const accessToken = jwt.sign(
+    { email, role, type },
+    process.env.ACCESS_TOKEN_SECRET
+  );
   return res
     .cookie("token", accessToken, {
       httpOnly: true, // Prevent JavaScript access

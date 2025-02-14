@@ -25,7 +25,7 @@ const signin = async (user) => {
       return responce
     })
     .catch((error)=>{
-      return error
+      throw error
     })
 }
 

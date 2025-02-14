@@ -1,3 +1,5 @@
+import prisma from "../prisma/prismaClient.js";
+
 const person = {
   developer: "Developer",
   employer: "Employer",
@@ -7,7 +9,7 @@ const person = {
   },
 };
 
-async function getTable(role, type) {
+function getTable(role, type) {
   if (role === person.developer) {
     return prisma.developer;
   } else if (role === person.employer && type === person.type.individual) {
@@ -18,8 +20,8 @@ async function getTable(role, type) {
   return false;
 }
 
-async function exist(email, table) {
-  return await table.findUnique({
+function exist(email, table) {
+  return table.findUnique({
     where: { email: email },
     select: {
       email: true,

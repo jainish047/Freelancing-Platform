@@ -14,6 +14,8 @@ export default function Login() {
   const initialValues = {
     email: "",
     password: "",
+    role: "Developer",
+    type: "Individual",
   };
 
   const validationSchema = yup.object({
@@ -25,6 +27,8 @@ export default function Login() {
       .string()
       .min(6, "password too short")
       .required("enter password"),
+    role: yup.string().required("Please select a role"),
+    type: yup.string().required("Please select a type"),
   });
 
   const onSubmit = (values) => {
@@ -34,8 +38,6 @@ export default function Login() {
         navigate("/");
       })
       .catch((error) => {
-        if(error.status===403)
-          navigate("/WaitEmailVerify", {state:{ email:values.email }})  // change needed
         console.log("there is error in login");
         toast.error(error.response.data.message);
       });
@@ -44,7 +46,7 @@ export default function Login() {
   return (
     <div className="flex justify-center items-center">
       <div className="shadow-lg rounded p-10  w-full md:w-2xl mt-10">
-        <div className="flex gap-4 bg-gray-400 p-1 rounded text-white my-6">
+        {/* <div className="flex gap-4 bg-gray-400 p-1 rounded text-white my-6">
           <button
             className={`flex-1 p-1 ${
               isDeveloper ? "bg-gray-500" : ""
@@ -65,7 +67,7 @@ export default function Login() {
           >
             Employer
           </button>
-        </div>
+        </div> */}
         <h1 className="text-2xl font-bold text-center">Login</h1>
         <Formik
           initialValues={initialValues}
@@ -78,6 +80,36 @@ export default function Login() {
                 className="flex flex-col py-5 gap-6"
                 onSubmit={formikProps.handleSubmit}
               >
+                {/* Role Selector */}
+                <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
+                  <button
+                    type="button"
+                    className={`flex-1 p-1 ${
+                      formikProps.values.role === "Developer"
+                        ? "bg-gray-600"
+                        : "bg-gray-400"
+                    } rounded cursor-pointer`}
+                    onClick={() => {
+                      formikProps.setFieldValue("role", "Developer");
+                      formikProps.setFieldValue("type", "Individual");
+                    }}
+                  >
+                    Developer
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 p-1 ${
+                      formikProps.values.role === "Employer"
+                        ? "bg-gray-600"
+                        : "bg-gray-400"
+                    } rounded cursor-pointer`}
+                    onClick={() =>
+                      formikProps.setFieldValue("role", "Employer")
+                    }
+                  >
+                    Employer
+                  </button>
+                </div>
                 <InputField
                   label="Email Address"
                   type="email"
@@ -92,6 +124,18 @@ export default function Login() {
                   placeholder="12345678"
                   required
                 />
+                {/* Employer-specific Fields */}
+                {formikProps.values.role === "Employer" && (
+                  <>
+                    <InputField
+                      label="Account Type"
+                      type="radio"
+                      name="type"
+                      options={["Individual", "Organization"]}
+                      required
+                    />
+                  </>
+                )}
 
                 <Button type="submit" value="Login" />
 
