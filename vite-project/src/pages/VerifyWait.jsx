@@ -1,5 +1,4 @@
 import { resendVerificationEMail } from "../API/authentication";
-import Button from "../components/Button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -47,6 +46,7 @@ export default function verifyWait() {
           </button>
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 }
