@@ -1,6 +1,5 @@
 // contexts/UserContext.js
 import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
 import { getSelfDetails } from "../API/user";
 
 // Create the context

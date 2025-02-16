@@ -15,5 +15,9 @@
     "url": "https://github.com/jainish047/Freelancing-Platform/issues"
   },
   "homepage": "https://github.com/jainish047/Freelancing-Platform#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+  },
+  "dependencies": {
+  }
 }
