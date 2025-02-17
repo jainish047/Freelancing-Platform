@@ -9,7 +9,7 @@ import Login from './pages/Login.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import VerifyWait from './pages/VerifyWait.jsx'
 import VerifyEmail from './pages/VerifyEmail.jsx'
-import Newpage from './pages/Newpage.jsx'
+import Newpage from './pages/NewPage.jsx'
 // import Profile from './pages/Profile.jsx'
 
 const Router = createBrowserRouter([

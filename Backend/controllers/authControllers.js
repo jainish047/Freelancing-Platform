@@ -21,7 +21,7 @@ const sendVerificationEmail = async (email, role, type, res) => {
     }
   );
 
-  const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
   try {
     await transporter.sendMail({
@@ -32,7 +32,7 @@ const sendVerificationEmail = async (email, role, type, res) => {
             <p>Hello ${email},</p>
             <p>Thank you for registering! Please verify your email by clicking the link below:</p>
             <a href="${verificationUrl}">Verify Email</a>
-            <p>${verificationUrl}</p>
+            <a>${verificationUrl}</a>
             <p>The link will expire in 1 hour.</p>
           `,
     });

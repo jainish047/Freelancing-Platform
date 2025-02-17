@@ -2,9 +2,9 @@ import { Form, Formik, Field, ErrorMessage } from "formik";
 
 export default function InputField(props) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-1">
       {/* Label */}
-      <label htmlFor={props.name}>
+      <label htmlFor={props.name} className="font-medium text-gray-700">
         {props.label}
         {props.required ? <span className="text-red-600">*</span> : null}
       </label>
@@ -26,7 +26,7 @@ export default function InputField(props) {
           ))}
         </div>
       ) : props.type === "radio" && props.options ? (
-        <div className="flex  gap-4">
+        <div className="flex gap-4">
           {props.options.map((option, index) => (
             <label key={index} className="flex items-center space-x-2">
               <Field
@@ -47,7 +47,7 @@ export default function InputField(props) {
           id={props.name}
           name={props.name}
           placeholder={props.placeholder}
-          className="border border-blue-500 rounded p-1"
+          className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800 shadow-sm"
           rows={props.rows || ""}
           cols={props.cols || ""}
           as={props.as || "input"}

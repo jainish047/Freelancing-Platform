@@ -1,4 +1,4 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as yup from "yup";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
@@ -37,7 +37,7 @@ export default function Signin() {
       return role === "Employer"
         ? schema.required("Please select a type")
         : schema.notRequired();
-    }),    
+    }),
     companyName: yup.string().when(["role", "type"], ([role, type], schema) => {
       return role === "Employer" && type === "Organization"
         ? schema.required("Company name is required")
@@ -62,14 +62,13 @@ export default function Signin() {
         });
       })
       .catch((error) => {
-        console.log(error)
         toast.error(error?.response?.data?.message);
       });
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="shadow-lg rounded p-10 w-full md:w-2xl mt-7">
+    <div className="flex justify-center items-center h-screen w-screen overflow-auto">
+      <div className="shadow-lg rounded p-10 w-full max-w-2xl mt-7">
         <h1 className="text-2xl font-bold text-center">Sign Up</h1>
         <Formik
           initialValues={initialValues}
@@ -153,8 +152,8 @@ export default function Signin() {
               )}
 
               <Button type="submit" value="Sign Up" />
-              <p className="text-center underline">
-                <Link to="/login">Already have an account? Log In</Link>
+              <p className="text-center mt-3">
+              Already have an account? <Link to="/login" className="underline">Log In</Link>
               </p>
             </Form>
           )}

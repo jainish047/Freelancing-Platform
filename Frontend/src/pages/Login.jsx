@@ -39,35 +39,13 @@ export default function Login() {
       })
       .catch((error) => {
         console.log("there is error in login");
-        toast.error(error.response.data.message);
+        // toast.error(error.response.data.message);
       });
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="shadow-lg rounded p-10  w-full md:w-2xl mt-10">
-        {/* <div className="flex gap-4 bg-gray-400 p-1 rounded text-white my-6">
-          <button
-            className={`flex-1 p-1 ${
-              isDeveloper ? "bg-gray-500" : ""
-            } rounded cursor-pointer`}
-            onClick={() => {
-              setIsDeveloper(true);
-            }}
-          >
-            Developer
-          </button>
-          <button
-            className={`flex-1 p-1 ${
-              !isDeveloper ? "bg-gray-500" : ""
-            } rounded  cursor-pointer`}
-            onClick={() => {
-              setIsDeveloper(false);
-            }}
-          >
-            Employer
-          </button>
-        </div> */}
+    <div className="flex justify-center items-center w-screen">
+      <div className="shadow-lg rounded p-10 w-full max-w-2xl mt-10">
         <h1 className="text-2xl font-bold text-center">Login</h1>
         <Formik
           initialValues={initialValues}
@@ -148,10 +126,10 @@ export default function Login() {
             );
           }}
         </Formik>
-        <button className="flex justify-center border border-blue-700 p-1 rounded-full hover:bg-blue-600 hover:text-white cursor-pointer w-full">
+        {/* <button className="flex justify-center border border-blue-700 p-1 rounded-full hover:bg-blue-600 hover:text-white cursor-pointer w-full">
           Continue with{" "}
           <img src="./assets/GoogleLogo2.svg" alt="Google" className="mx-1" />
-        </button>
+        </button> */}
         <hr className="text-gray-400 my-4" />
         <p className="text-center">
           <span>

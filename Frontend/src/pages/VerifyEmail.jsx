@@ -17,15 +17,25 @@ export default function VerifyEmail() {
         const token = params.get("token");
 
         // Make the API call
-        const response = await axios.post("http://localhost:3000/api/auth/verifyEmail", { token });
+        const response = await axios.post(
+          "http://localhost:3000/api/auth/verifyEmail",
+          { token }
+        );
         setMessage("Email verified. You may now login");
       } catch (error) {
-        setMessage(error?.response?.data?.message || "An error occurred. Please try again.");
+        setMessage(
+          error?.response?.data?.message ||
+            "An error occurred. Please try again."
+        );
       }
     };
 
     fxn();
   }, []);
 
-  return <div>{message}</div>;
+  return (
+    <div className="flex justify-center items-center">
+      <p>{message}</p>
+    </div>
+  );
 }
