@@ -48,76 +48,76 @@ const sendVerificationEmail = async (email, role, type, res) => {
 };
 
 export async function signup(req, res) {
-  try{
+  try {
     console.log(req.body);
-  const { email, password, role, type, companyName } = req.body;
+    const { email, password, role, type, companyName } = req.body;
 
-  console.log(email, " tried to signup");
+    console.log(email, " tried to signup");
 
-  // empty fields
-  if (!email || !password || email === "" || password === ""){
-    console.log("Invalid email or password")
-    return res.status(400).send({ message: "Invalid email or password" });
-  }
-  if (
-    role === person.employer &&
-    type === person.type.organization &&
-    (!companyName || companyName === "")
-  ){
-    console.log("Invalid Company name")
-    return res.status(400).send({ message: "Invalid Company name" });
-  }
-
-  const table = getTable(role, type);
-  if (!table){
-    console.log("Invalid role")
-    res.status(400).send({ message: "invalid role" });
-  }
-  // console.log("table->", table)
-  // check if user already exist
-  const existingUser = await table.findFirst({
-    where: {
-      OR: [{ email: email }, { companyName: companyName }],
-    },
-  });
-  console.log("existing user:->", existingUser)
-  if (existingUser){
-    console.log("already exist")
-    return res
-      .status(409)
-      .send({ message: "Email/Company name already exists" });
-  }
-
-  // Save new user to the database
-  let newUser;
-  try{
-    if(role===person.employer && type===person.type.organization){
-      newUser = await table.create({
-        data: {
-          email: email,
-          password: password,
-          companyName: companyName,
-        },
-      });
-    }else{
-      newUser = await table.create({
-        data: {
-          email: email,
-          password: password,
-        },
-      });
+    // empty fields
+    if (!email || !password || email === "" || password === "") {
+      console.log("Invalid email or password");
+      return res.status(400).send({ message: "Invalid email or password" });
     }
-  }catch(err){
-    console.log("error creating user->", err)
-  }
+    if (
+      role === person.employer &&
+      type === person.type.organization &&
+      (!companyName || companyName === "")
+    ) {
+      console.log("Invalid Company name");
+      return res.status(400).send({ message: "Invalid Company name" });
+    }
 
-  console.log("newUser:->", newUser)
+    const table = getTable(role, type);
+    if (!table) {
+      console.log("Invalid role");
+      res.status(400).send({ message: "invalid role" });
+    }
+    // console.log("table->", table)
+    // check if user already exist
+    const existingUser = await table.findFirst({
+      where: {
+        OR: [{ email: email }, { companyName: companyName }],
+      },
+    });
+    console.log("existing user:->", existingUser);
+    if (existingUser) {
+      console.log("already exist");
+      return res
+        .status(409)
+        .send({ message: "Email/Company name already exists" });
+    }
 
-  if (!newUser)
-    return res.status(400).send({ message: "User could not be created" });
+    // Save new user to the database
+    let newUser;
+    try {
+      if (role === person.employer && type === person.type.organization) {
+        newUser = await table.create({
+          data: {
+            email: email,
+            password: password,
+            companyName: companyName,
+          },
+        });
+      } else {
+        newUser = await table.create({
+          data: {
+            email: email,
+            password: password,
+          },
+        });
+      }
+    } catch (err) {
+      console.log("error creating user->", err);
+    }
 
-  sendVerificationEmail(email, role, type, res);
-  }catch(error){
+    console.log("newUser:->", newUser);
+
+    if (!newUser)
+      return res.status(400).send({ message: "User could not be created" });
+
+    sendVerificationEmail(email, role, type, res);
+  } catch (error) {
     return res.status(400).send({ message: "Something went wrong" });
   }
   //   return res.status(201).send({ message: "User created successfully", user: newUser });
@@ -226,5 +226,5 @@ export async function login(req, res) {
       secure: process.env.NODE_ENV === "production", // Use HTTPS in production
       sameSite: "strict", // Prevent CSRF
     })
-    .json({ user:dbuser, token:accessToken, message: "Token assigned" });
+    .json({ user: dbuser, token: accessToken, message: "Token assigned" });
 }

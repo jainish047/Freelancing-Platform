@@ -44,18 +44,18 @@ export default function Header() {
     <header className="flex items-center justify-between p-4 border-b bg-white shadow-md">
       {/* Logo */}
       <Link href="/" className="text-xl font-bold">
-        MyWebsite
+        P4
       </Link>
 
       {/* Desktop Navigation */}
       <nav className="hidden md:flex space-x-6">
-        <Link href="/services" className="text-gray-700 hover:text-black">
-          Services
+        <Link to="/" className="text-gray-700 hover:text-black">
+          Dashboard
         </Link>
-        <Link href="/about" className="text-gray-700 hover:text-black">
-          About
+        <Link to="/explore" className="text-gray-700 hover:text-black">
+          Explore
         </Link>
-        <Link href="/contact" className="text-gray-700 hover:text-black">
+        <Link to="/contact" className="text-gray-700 hover:text-black">
           Contact
         </Link>
       </nav>
@@ -91,21 +91,21 @@ export default function Header() {
             </SheetHeader>
             <nav className="flex flex-col space-y-4">
               <Link
-                href="/services"
+                to="/"
                 className="text-gray-700 hover:text-black"
                 onClick={() => setOpen(false)}
               >
-                Services
+                Dashboard
               </Link>
               <Link
-                href="/about"
+                to="/explore"
                 className="text-gray-700 hover:text-black"
                 onClick={() => setOpen(false)}
               >
-                About
+                Explore
               </Link>
               <Link
-                href="/contact"
+                to="/contact"
                 className="text-gray-700 hover:text-black"
                 onClick={() => setOpen(false)}
               >
