@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  [data-state="checked"] {
+    @apply border-primary;
+  }
+  
+  [data-state="checked"] > span {
+    @apply bg-primary;
+  }
+}
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

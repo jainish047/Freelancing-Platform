@@ -1,165 +1,194 @@
-import { Formik, Form } from "formik";
-import * as yup from "yup";
-import InputField from "../components/InputField";
-import Button from "../components/Button";
-import { useNavigate } from "react-router-dom";
-import { signin } from "../API/authentication";
-import { ToastContainer, toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
+import Button from "@/components/ui/button";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser } from "../context/authSlice.js";
+import { Loader2 } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
 
-export default function Signin() {
+// 1. Create a form schema
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters." }),
+  role: z.enum(["Developer", "Employer"]),
+  type: z.enum(["Individual", "Organization"]).optional(),
+});
+
+export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isLoading = useSelector((state) => state.loading.login);
 
-  const initialValues = {
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "Developer",
-    type: "Individual",
-    companyName: "",
-  };
-
-  const validationSchema = yup.object().shape({
-    email: yup
-      .string()
-      .email("Invalid email format")
-      .required("Please enter your email"),
-    password: yup
-      .string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-    confirmPassword: yup
-      .string()
-      .required("Please confirm your password")
-      .oneOf([yup.ref("password"), null], "Passwords must match"),
-    role: yup.string().required("Please select a role"),
-    type: yup.string().when("role", (role, schema) => {
-      return role === "Employer"
-        ? schema.required("Please select a type")
-        : schema.notRequired();
-    }),
-    companyName: yup.string().when(["role", "type"], ([role, type], schema) => {
-      return role === "Employer" && type === "Organization"
-        ? schema.required("Company name is required")
-        : schema.notRequired();
-    }),
+  // 2. Define the form with react-hook-form and zodResolver
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      role: "Developer",
+      type: "Individual",
+    },
   });
 
+  const { handleSubmit, register, watch } = form;
+  const roleValue = watch("role");
+  const { toast } = useToast();
+
+  // 3. Build the form
   const onSubmit = (values) => {
-    signin({
-      email: values.email,
-      password: values.password,
-      role: values.role,
-      type: values.role === "Employer" ? values.type : undefined,
-      companyName:
-        values.role === "Employer" && values.type === "Organization"
-          ? values.companyName
-          : undefined,
-    })
+    console.log(values);
+    dispatch(signupUser(values))
+      .unwrap()
       .then(() => {
-        navigate("/WaitEmailVerify", {
-          state: { email: values.email, role: values.role, type: values.type },
-        });
+        navigate("/auth/waitEmailVerify");
       })
       .catch((error) => {
-        toast.error(error?.response?.data?.message);
+        // Ensure you handle the error based on the structure you set in the thunk
+        const message = error.message || "An error occurred";
+        const status = error.status || 500;
+
+        toast({
+          title: `Error ${status}`,
+          description: message,
+        });
+
+        console.log("Error in login page:", message);
       });
   };
 
   return (
-    <div className="flex justify-center items-center h-screen w-screen overflow-auto">
-      <div className="shadow-lg rounded p-10 w-full max-w-2xl mt-7">
-        <h1 className="text-2xl font-bold text-center">Sign Up</h1>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={onSubmit}
-        >
-          {(formikProps) => (
-            <Form className="flex flex-col py-5 gap-6">
-              {/* Role Selector */}
-              <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
-                <button
-                  type="button"
-                  className={`flex-1 p-1 ${
-                    formikProps.values.role === "Developer"
-                      ? "bg-gray-600"
-                      : "bg-gray-400"
-                  } rounded cursor-pointer`}
-                  onClick={() => {
-                    formikProps.setFieldValue("role", "Developer");
-                    formikProps.setFieldValue("type", "Individual");
-                  }}
-                >
-                  Developer
-                </button>
-                <button
-                  type="button"
-                  className={`flex-1 p-1 ${
-                    formikProps.values.role === "Employer"
-                      ? "bg-gray-600"
-                      : "bg-gray-400"
-                  } rounded cursor-pointer`}
-                  onClick={() => formikProps.setFieldValue("role", "Employer")}
-                >
-                  Employer
-                </button>
-              </div>
+    <div className="flex justify-center items-center min-h-screen w-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Role Selector */}
+            <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
+              <label
+                className={`flex-1 p-1 text-center cursor-pointer rounded ${
+                  roleValue === "Developer" ? "bg-gray-600" : "bg-gray-400"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="Developer"
+                  {...register("role")}
+                  className="hidden"
+                />
+                Developer
+              </label>
+              <label
+                className={`flex-1 p-1 text-center cursor-pointer rounded ${
+                  roleValue === "Employer" ? "bg-gray-600" : "bg-gray-400"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="Employer"
+                  {...register("role")}
+                  className="hidden"
+                />
+                Employer
+              </label>
+            </div>
 
-              {/* Email & Password Fields */}
-              <InputField
-                label="Email Address"
-                type="email"
-                name="email"
-                placeholder="abc123@email.com"
-                required
-              />
-              <InputField
-                label="Password"
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                required
-              />
-              <InputField
-                label="Confirm Password"
-                type="password"
-                name="confirmPassword"
-                placeholder="••••••••"
-                required
-              />
-
-              {/* Employer-specific Fields */}
-              {formikProps.values.role === "Employer" && (
-                <>
-                  <InputField
-                    label="Account Type"
-                    type="radio"
-                    name="type"
-                    options={["Individual", "Organization"]}
-                    required
-                  />
-                  {formikProps.values.type === "Organization" && (
-                    <InputField
-                      label="Company Name"
-                      type="text"
-                      name="companyName"
-                      placeholder="Enter company name"
-                      required
+            {/* Email Input */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="abc123@email.com"
+                      type="email"
+                      {...field}
                     />
-                  )}
-                </>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
 
-              <Button type="submit" value="Sign Up" />
-              <p className="text-center mt-3">
-              Already have an account? <Link to="/login" className="underline">Log In</Link>
-              </p>
-            </Form>
-          )}
-        </Formik>
+            {/* Password Input */}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="••••••••" type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Employer Type Selection */}
+            {roleValue === "Employer" && (
+              <div className="space-y-3">
+                <FormLabel>Type</FormLabel>
+                <div className="flex space-x-4">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="Individual"
+                      {...register("type")}
+                      defaultChecked
+                      className="w-4 h-4"
+                    />
+                    <span>Individual</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="Organization"
+                      {...register("type")}
+                      className="w-4 h-4"
+                    />
+                    <span>Organization</span>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Button type="submit" className="w-full">
+                Sign in
+              </Button>
+            )}
+
+            <div className="flex items-center my-2 text-gray-400">
+              <hr className="flex-grow" />
+              <span className="mx-2 text-gray-600">or</span>
+              <hr className="flex-grow" />
+            </div>
+            <p className="text-center mt-3">
+              Already have an account?{" "}
+              <Link to="/auth/login" className="underline text-blue-700">
+                Login
+              </Link>
+            </p>
+          </form>
+        </Form>
       </div>
-      <ToastContainer />
     </div>
   );
 }

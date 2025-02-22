@@ -2,7 +2,7 @@ import { api, setAuthToken } from "./axiosConfig";
 
 // Function to handle login (set token after successful login)
 const login = async (user) => {
-  console.log(user)
+  console.log(user);
   return api
     .post("/auth/login", user)
     .then((response) => {
@@ -12,34 +12,36 @@ const login = async (user) => {
       return response;
     })
     .catch((error) => {
-      console.error("Login failed:", error);
+      const errorMessage = error.response?.data?.message || error.message;
+      console.log("in authentication.js-> ", errorMessage); // Output: "No such user exist"
+      // console.error("Login failed:", error);
       throw error;
     });
 };
 
-const signin = async (user) => {
-  console.log(user)
+const signup = async (user) => {
+  console.log(user);
   return api
-    .post("/auth/signin", user)
-    .then((responce)=>{
-      return responce
+    .post("/auth/signup", user)
+    .then((responce) => {
+      return responce;
     })
-    .catch((error)=>{
-      throw error
-    })
-}
+    .catch((error) => {
+      throw error;
+    });
+};
 
 const resendVerificationEMail = async (email) => {
-  console.log(email)
+  console.log(email);
   return api
-    .get("/auth/resendVerificationEMail", {email})
-    .then((responce)=>{
-      return responce
+    .get("/auth/resendVerificationEMail", { email })
+    .then((responce) => {
+      return responce;
     })
-    .catch((error)=>{
-      return error
-    })
-}
+    .catch((error) => {
+      return error;
+    });
+};
 
 // Function to handle token refresh (if needed)
 // const refreshToken = () => {
@@ -87,8 +89,4 @@ const logout = () => {
 // Check for existing token on app initialization
 // checkAuth();
 
-export {
-    login,
-    signin,
-    resendVerificationEMail
-}
+export { login, signup, resendVerificationEMail };

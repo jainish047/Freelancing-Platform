@@ -23,7 +23,7 @@ app.use((req, res, next) => {
   // Skip this middleware for routes like /login and /signup
   if (
     req.originalUrl.includes("/auth/login") ||
-    req.originalUrl.includes("/auth/signin") ||
+    req.originalUrl.includes("/auth/signup") ||
     req.originalUrl.includes("/auth/verifyEmail")
   ) {
     return next();

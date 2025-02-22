@@ -21,7 +21,7 @@ const sendVerificationEmail = async (email, role, type, res) => {
     }
   );
 
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/auth/verify-email?token=${token}`;
 
   try {
     await transporter.sendMail({
@@ -47,25 +47,32 @@ const sendVerificationEmail = async (email, role, type, res) => {
   }
 };
 
-export async function signin(req, res) {
+export async function signup(req, res) {
   try{
     console.log(req.body);
   const { email, password, role, type, companyName } = req.body;
 
-  console.log(email, " tried to signin");
+  console.log(email, " tried to signup");
 
   // empty fields
-  if (!email || !password || email === "" || password === "")
+  if (!email || !password || email === "" || password === ""){
+    console.log("Invalid email or password")
     return res.status(400).send({ message: "Invalid email or password" });
+  }
   if (
     role === person.employer &&
     type === person.type.organization &&
     (!companyName || companyName === "")
-  )
+  ){
+    console.log("Invalid Company name")
     return res.status(400).send({ message: "Invalid Company name" });
+  }
 
   const table = getTable(role, type);
-  if (!table) res.status(400).send({ message: "invalid role" });
+  if (!table){
+    console.log("Invalid role")
+    res.status(400).send({ message: "invalid role" });
+  }
   // console.log("table->", table)
   // check if user already exist
   const existingUser = await table.findFirst({
@@ -74,10 +81,12 @@ export async function signin(req, res) {
     },
   });
   console.log("existing user:->", existingUser)
-  if (existingUser)
+  if (existingUser){
+    console.log("already exist")
     return res
       .status(409)
       .send({ message: "Email/Company name already exists" });
+  }
 
   // Save new user to the database
   let newUser;
@@ -217,5 +226,5 @@ export async function login(req, res) {
       secure: process.env.NODE_ENV === "production", // Use HTTPS in production
       sameSite: "strict", // Prevent CSRF
     })
-    .json({ message: "Token assigned" });
+    .json({ user:dbuser, token:accessToken, message: "Token assigned" });
 }
