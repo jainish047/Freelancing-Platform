@@ -14,7 +14,7 @@ import Button from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../context/authSlice.js";
-import { Loader2 } from "lucide-react";
+import { Loader2, Variable } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // 1. Create a form schema
@@ -65,8 +65,10 @@ export default function Login() {
         const status = err.status || 500;
 
         toast({
+          variant:"destructive",
           title: `Error ${status}`,
           description: message,
+          duration:3000
         });
 
         console.log("Error in login page:", message);

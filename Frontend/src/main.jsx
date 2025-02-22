@@ -12,7 +12,7 @@ import VerifyWait from "./pages/VerifyWait.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Newpage from "./pages/NewPage.jsx";
 import Auth from "./pages/Auth.jsx";
-// import Profile from './pages/Profile.jsx'
+import Profile from "./pages/Profile.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -50,9 +50,19 @@ const Router = createBrowserRouter([
         element: <Newpage />,
       },
       // {
-      //   path: "Profile",
-      //   element:<Profile/>
-      // }
+      //   path: "profile",
+      //   element: <Profile />,
+      //   children: [
+      //     {
+      //       path: ":id",
+      //       element: <Profile />,
+      //     },
+      //   ],
+      // },
+      {
+        path: "Profile/:id",
+        element:  <Profile/>
+      }
     ],
   },
 ]);

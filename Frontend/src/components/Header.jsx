@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { logoutUser } from "../context/authSlice";
 import {
   Sheet,
-  SheetClose,
+  // SheetClose,
   SheetContent,
-  SheetDescription,
-  SheetFooter,
+  // SheetDescription,
+  // SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -15,11 +18,27 @@ import {
 import { Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "./ui/separator";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { toast } = useToast();
 
   return (
     <header className="flex items-center justify-between p-4 border-b bg-white shadow-md">
@@ -103,15 +122,59 @@ export default function Header() {
 
         {/* Avatar / Login Button */}
         {user ? (
-          <Avatar>
-            <AvatarImage
-              className="w-10 h-10"
-              src={`https://api.dicebear.com/7.x/initials/svg?seed=${
-                user?.fname || user?.companyName || user?.email
-              }`}
-            />
-            <AvatarFallback>{(user.fname || "U")[0]}</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar>
+                <AvatarImage
+                  className="w-10 h-10 cursor-pointer"
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${
+                    user?.fname || user?.companyName || user?.email
+                  }`}
+                />
+                <AvatarFallback>{(user.fname || "U")[0]}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>
+                {user?.fname || user?.companyName || user?.email}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/profile/${user.id}`)}
+                  className="cursor-pointer"
+                >
+                  Profile
+                </DropdownMenuItem>
+                {/* <DropdownMenuItem asChild>
+                  <Link to={`/profile/${user?.id}`} className="text-black">Profile</Link>
+                </DropdownMenuItem> */}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    dispatch(logoutUser())
+                      .unwrap()
+                      .then(() => {
+                        navigate("/")
+                      })
+                      .catch((err) => {
+                        toast({
+                          variant: "destructive",
+                          title: "Unable to Logout",
+                          // description:err
+                          duration: 3000, // Auto-hide after 3 seconds                    })
+                        });
+                      });
+                  }}
+                  className="cursor-pointer"
+                >
+                  Logout
+                </DropdownMenuItem>{" "}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <div className="flex">
             <Link to="/auth/login">

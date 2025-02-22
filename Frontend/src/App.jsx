@@ -5,6 +5,8 @@ import { useEffect } from "react";
 import Header from "./components/Header";
 import { fetchUserDetails } from "./context/authSlice";
 import { setAuthToken } from "./API/axiosConfig";
+// import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const dispatch = useDispatch();
@@ -24,8 +26,7 @@ function App() {
       dispatch(fetchUserDetails());
     }
     // console.log("user->", user)
-    console.log("token->", token)
-
+    console.log("token->", token);
   }, [dispatch, location.pathname]);
 
   useEffect(() => {
@@ -36,8 +37,9 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-        <Header />
-        <Outlet />
+      <Header />
+      <Outlet />
+      <Toaster />
     </div>
   );
 }

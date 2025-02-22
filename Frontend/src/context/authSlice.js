@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { login, signup, resendVerificationEMail } from "../API/authentication";
+import { login, signup, resendVerificationEMail, logout } from "../API/authentication";
 import { setLoadingState } from "./loadingSlice";
 import {getSelfDetails} from "../API/user"
 

@@ -89,4 +89,4 @@ const logout = () => {
 // Check for existing token on app initialization
 // checkAuth();
 
-export { login, signup, resendVerificationEMail };
+export { login, signup, resendVerificationEMail, logout };

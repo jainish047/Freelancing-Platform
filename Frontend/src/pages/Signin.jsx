@@ -62,8 +62,10 @@ export default function Login() {
         const status = error.status || 500;
 
         toast({
+          variant:"destructive",
           title: `Error ${status}`,
           description: message,
+          duration:3000
         });
 
         console.log("Error in login page:", message);
