@@ -26,15 +26,9 @@
     "clsx": "^2.1.1",
     "formik": "^2.4.6",
     "lucide-react": "^0.475.0",
-<<<<<<< HEAD
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.10.9",
-    "react-dom": "^18.2.0",
-=======
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^18.3.1",
->>>>>>> d57e903d0cce6cb434ab06d6b7cd4db8fd6008b9
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.5.0",
