@@ -23,8 +23,8 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters." }),
-  role: z.string(),
-  type: z.string(),
+  // role: z.string(),
+  // type: z.string(),
 });
 
 export default function Login() {
@@ -39,8 +39,8 @@ export default function Login() {
     defaultValues: {
       email: "",
       password: "",
-      role: "Developer",
-      type: "Individual",
+      // role: "Developer",
+      // type: "Individual",
     },
   });
 
@@ -80,30 +80,6 @@ export default function Login() {
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Role Selector */}
-            <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
-              <button
-                type="button"
-                className={`flex-1 p-1 ${
-                  roleValue === "Developer" ? "bg-gray-600" : "bg-gray-400"
-                } rounded cursor-pointer`}
-                onClick={() => {
-                  setValue("role", "Developer");
-                  setValue("type", "Individual");
-                }}
-              >
-                Developer
-              </button>
-              <button
-                type="button"
-                className={`flex-1 p-1 ${
-                  roleValue === "Employer" ? "bg-gray-600" : "bg-gray-400"
-                } rounded cursor-pointer`}
-                onClick={() => setValue("role", "Employer")}
-              >
-                Employer
-              </button>
-            </div>
 
             <FormItem>
               <FormLabel>Email Address</FormLabel>
@@ -130,34 +106,6 @@ export default function Login() {
               </FormControl>
               <FormMessage />
             </FormItem>
-
-            {/* Employer Type Selection */}
-            {roleValue === "Employer" && (
-              <div className="space-y-3">
-                <FormLabel>Type</FormLabel>
-                <div className="flex space-x-4">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="Individual"
-                      {...register("type")}
-                      defaultChecked
-                      className="w-4 h-4"
-                    />
-                    <span>Individual</span>
-                  </label>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="Organization"
-                      {...register("type")}
-                      className="w-4 h-4"
-                    />
-                    <span>Organization</span>
-                  </label>
-                </div>
-              </div>
-            )}
 
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

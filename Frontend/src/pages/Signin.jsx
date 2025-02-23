@@ -24,8 +24,7 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters." }),
-  role: z.enum(["Developer", "Employer"]),
-  type: z.enum(["Individual", "Organization"]).optional(),
+  role: z.enum(["WORK", "HIRE"]),
 });
 
 export default function Login() {
@@ -39,8 +38,7 @@ export default function Login() {
     defaultValues: {
       email: "",
       password: "",
-      role: "Developer",
-      type: "Individual",
+      role: "WORK",
     },
   });
 
@@ -62,10 +60,10 @@ export default function Login() {
         const status = error.status || 500;
 
         toast({
-          variant:"destructive",
+          variant: "destructive",
           title: `Error ${status}`,
           description: message,
-          duration:3000
+          duration: 3000,
         });
 
         console.log("Error in login page:", message);
@@ -81,29 +79,29 @@ export default function Login() {
             <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
               <label
                 className={`flex-1 p-1 text-center cursor-pointer rounded ${
-                  roleValue === "Developer" ? "bg-gray-600" : "bg-gray-400"
+                  roleValue === "WORK" ? "bg-gray-600" : "bg-gray-400"
                 }`}
               >
                 <input
                   type="radio"
-                  value="Developer"
+                  value="WORK"
                   {...register("role")}
                   className="hidden"
                 />
-                Developer
+                Work
               </label>
               <label
                 className={`flex-1 p-1 text-center cursor-pointer rounded ${
-                  roleValue === "Employer" ? "bg-gray-600" : "bg-gray-400"
+                  roleValue === "HIRE" ? "bg-gray-600" : "bg-gray-400"
                 }`}
               >
                 <input
                   type="radio"
-                  value="Employer"
+                  value="HIRE"
                   {...register("role")}
                   className="hidden"
                 />
-                Employer
+                Hire
               </label>
             </div>
 
@@ -140,34 +138,6 @@ export default function Login() {
                 </FormItem>
               )}
             />
-
-            {/* Employer Type Selection */}
-            {roleValue === "Employer" && (
-              <div className="space-y-3">
-                <FormLabel>Type</FormLabel>
-                <div className="flex space-x-4">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="Individual"
-                      {...register("type")}
-                      defaultChecked
-                      className="w-4 h-4"
-                    />
-                    <span>Individual</span>
-                  </label>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      value="Organization"
-                      {...register("type")}
-                      className="w-4 h-4"
-                    />
-                    <span>Organization</span>
-                  </label>
-                </div>
-              </div>
-            )}
 
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

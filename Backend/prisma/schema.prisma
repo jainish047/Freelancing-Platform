@@ -3,84 +3,80 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DIRECT_URL")  // Use DIRECT_URL for migrations
+  url      = env("DIRECT_URL") // Use DIRECT_URL for migrations
 }
 
-model developer{
-  id String @id @default(uuid())
-  fname String?
-  lname String?
-  email String @unique
-  password String?
-  phoneNumber String?
-  bio String?
-  skills String[]
-  location String?
-  active Boolean @default(true)
-  dateJoined DateTime?
-  emailVerified Boolean @default(false)
-  phoneNumberVerified Boolean @default(false)
+model user {
+  id                  String    @id @default(uuid())
+  name                String?
+  profilePic          String?
+  email               String    @unique
+  role                UserRole  // Updated to use enum
+  password            String?
+  phoneNumber         String?
+  bio                 String?
+  skills              String[]
+  location            String?
+  active              Boolean   @default(true)
+  dob                 DateTime?
+  languages           String[]  // Allows multiple languages
+  experience          Json?
+  dateJoined          DateTime? @default(now())
+  emailVerified       Boolean   @default(false)
+  phoneNumberVerified Boolean   @default(false)
+  projects            project[] @relation("ClientProjects") // Projects posted by this user
+  bids                bid[] @relation("UserBids") // Bids placed by this user
+  freelancingProjects project[] @relation("FreelancerProjects") // Projects user is working on
 }
 
-model clientIndividual{
-  id String @id @default(uuid())
-  organization Boolean?
-  fname String?
-  lname String?
-  email String @unique
-  password String
-  phoneNumber String?
-  bio String?
-  location String?
-  active Boolean?
-  dateJoined DateTime @default(now())
-  emailVerified Boolean @default(false)
-  phoneNumberVerified Boolean @default(false)
+model project {
+  id             String        @id @default(uuid())
+  userId         String
+  user           user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  budgetRange    String         // Example: "$500 - $1000"
+  status         ProjectStatus @default(OPEN) // Tracks project progress
+  createdAt      DateTime      @default(now())
+  dueDate        DateTime?
+  documents      String[]       // Array of document URLs
+  skillsRequired String[]       // Example: ["React", "Node.js"]
+  paymentMethod  PaymentType
+  bids           bid[] @relation("ProjectBids") // All bids on this project
+  assignedTo     String? @unique // Ensure only one freelancer per project
+  freelancer     user? @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
 }
 
-model clientOrganization{
-  id String @id @default(uuid())
-  companyName String @unique
-  email String @unique
-  password String
-  phoneNumber String?
-  website String?
-  bio String?
-  industry String?
-  dateJoined DateTime @default(now())
-  emailVerified Boolean @default(false)
-  phoneNumberVerified Boolean @default(false)
-  active Boolean?
+model bid {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  project   project  @relation("ProjectBids", fields: [projectId], references: [id], onDelete: Cascade)
+  user      user     @relation("UserBids", fields: [userId], references: [id], onDelete: Cascade)
+  amount    Float
+  proposal  String
+  createdAt DateTime @default(now())
 }
 
-model Project{
-  project_id String @id @default(uuid()) @map("project_id")
-  client_type  ClientType @map("client_type")
-  client_id  String  @map("client_id")
-  title String  @db.VarChar(255)
-  description  String @db.Text
-  budget      Decimal       @db.Decimal(10, 2)
-  status      ProjectStatus @default(OPEN)
-  created_at  DateTime      @default(now()) @map("created_at")
-  updated_at  DateTime      @updatedAt @map("updated_at")
-
-  @@map("project")
+enum PaymentType {
+  HOURLY
+  FIXED
 }
 
-enum ClientType{
-  Individual
-  COMPANY
+enum UserRole { // Renamed for clarity
+  WORK
+  HIRE
 }
 
-enum ProjectStatus{
+enum ProjectStatus {
   OPEN
   IN_PROGRESS
   COMPLETED
+  CANCELED
 }

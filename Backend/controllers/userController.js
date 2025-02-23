@@ -3,10 +3,8 @@ import { getTable, exist } from "../common/user.js";
 
 async function selfDetails(req, res, next) {
   const user = req.user;
-  const table = getTable(user.role, user.type);
-  if (!table) return res.status(400).send({ message: "Invalid role" });
 
-  const existingUser = await table.findUnique({
+  const existingUser = await prisma.user.findUnique({
     where: {
       email: user.email,
     },

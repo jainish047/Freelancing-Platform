@@ -153,7 +153,7 @@ export default function Profile() {
         <div className="md:w-1/3 bg-gray-50 p-4 rounded-lg border border-gray-200">
           
           <div className="mb-6">
-            <h2 className="text-xl font-bold mb-3 text-gray-700">Work Experience</h2>
+            <h2 className="text-xl font-bold mb-3 text-gray-700">WORK Experience</h2>
             {profileData.workExperience.map((work, index) => (
               <div key={index} className="mb-4">
                 <h3 className="font-semibold text-gray-800">{work.role}</h3>

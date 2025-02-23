@@ -1,9 +1,9 @@
 import prisma from "../prisma/prismaClient.js";
+import { UserRole } from '@prisma/client';
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import { person, getTable, exist } from "../common/user.js";
 
-const sendVerificationEmail = async (email, role, type, res) => {
+const sendVerificationEmail = async (email, role, res) => {
   console.log("in sendVerificationEMail function");
   const transporter = nodemailer.createTransport({
     service: "gmail", // You can use your email provider
@@ -14,7 +14,7 @@ const sendVerificationEmail = async (email, role, type, res) => {
   });
 
   const token = jwt.sign(
-    { email, role, type },
+    { email, role },
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: "1h",
@@ -31,7 +31,7 @@ const sendVerificationEmail = async (email, role, type, res) => {
       html: `
             <p>Hello ${email},</p>
             <p>Thank you for registering! Please verify your email by clicking the link below:</p>
-            <a href="${verificationUrl}">Verify Email</a>
+            <a href="${verificationUrl}">Verify Email</a><br>
             <a>${verificationUrl}</a>
             <p>The link will expire in 1 hour.</p>
           `,
@@ -50,7 +50,7 @@ const sendVerificationEmail = async (email, role, type, res) => {
 export async function signup(req, res) {
   try {
     console.log(req.body);
-    const { email, password, role, type, companyName } = req.body;
+    const { email, password, role } = req.body;
 
     console.log(email, " tried to signup");
 
@@ -59,28 +59,14 @@ export async function signup(req, res) {
       console.log("Invalid email or password");
       return res.status(400).send({ message: "Invalid email or password" });
     }
-    if (
-      role === person.employer &&
-      type === person.type.organization &&
-      (!companyName || companyName === "")
-    ) {
-      console.log("Invalid Company name");
-      return res.status(400).send({ message: "Invalid Company name" });
-    }
 
-    const table = getTable(role, type);
-    if (!table) {
-      console.log("Invalid role");
-      res.status(400).send({ message: "invalid role" });
-    }
-    // console.log("table->", table)
-    // check if user already exist
-    const existingUser = await table.findFirst({
+    const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [{ email: email }, { companyName: companyName }],
+        OR: [{ email: email }],
       },
     });
     console.log("existing user:->", existingUser);
+
     if (existingUser) {
       console.log("already exist");
       return res
@@ -88,25 +74,26 @@ export async function signup(req, res) {
         .send({ message: "Email/Company name already exists" });
     }
 
+    let userRole;
+    if (role === "WORK") {
+      userRole = UserRole.WORK;
+    } else if (role === "HIRE") {
+      userRole = UserRole.HIRE;
+    } else {
+      console.log("Invalid role");
+      return res.status(400).send({ message: "Invalid role provided" });
+    }
+
     // Save new user to the database
     let newUser;
     try {
-      if (role === person.employer && type === person.type.organization) {
-        newUser = await table.create({
-          data: {
-            email: email,
-            password: password,
-            companyName: companyName,
-          },
-        });
-      } else {
-        newUser = await table.create({
-          data: {
-            email: email,
-            password: password,
-          },
-        });
-      }
+      newUser = await prisma.user.create({
+        data: {
+          email,
+          password, // Store hashed password
+          role, // or "work"
+        }
+      });
     } catch (err) {
       console.log("error creating user->", err);
     }
@@ -116,8 +103,9 @@ export async function signup(req, res) {
     if (!newUser)
       return res.status(400).send({ message: "User could not be created" });
 
-    sendVerificationEmail(email, role, type, res);
+    sendVerificationEmail(email, role, res);
   } catch (error) {
+    console.log(error)
     return res.status(400).send({ message: "Something went wrong" });
   }
   //   return res.status(201).send({ message: "User created successfully", user: newUser });
@@ -130,14 +118,11 @@ export async function verifyEmail(req, res) {
 
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET); // Decode the token
-    const { email, role, type } = decoded;
+    const { email, role } = decoded;
 
-    const table = getTable(role, type);
-    if (!table) return res.status(400).send({ message: "invalid role" });
+    console.log(email, " ", role, "is verifying");
 
-    console.log(email, " ", role, " ", type, "is verifying");
-
-    const user = await table.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: email },
       select: {
         email: true,
@@ -147,7 +132,7 @@ export async function verifyEmail(req, res) {
     if (!user) return res.status(404).send("User not found");
 
     // Mark the user as verified
-    await table.update({
+    await prisma.user.update({
       where: { email: email },
       data: { emailVerified: true },
     });
@@ -165,13 +150,15 @@ export async function verifyEmail(req, res) {
 }
 
 export async function resendVerificationEMail(req, res) {
-  const { email, role, type } = req.body;
+  const { email, role } = req.body;
 
-  const table = getTable(role, type);
-  console.log(table);
-  if (!table) return res.status(400).send({ message: "Invalid role" });
-
-  const user = exist(email, table);
+  const user = await prisma.user.findUnique({
+    where: { email: email },
+    select: {
+      email: true,
+      emailVerified: true,
+    },
+  });
   if (user) return res.status(404).send({ message: "User not found" });
 
   if (user.emailVerified)
@@ -182,7 +169,7 @@ export async function resendVerificationEMail(req, res) {
 
 export async function login(req, res) {
   // first authenticate email and password
-  const { email, password, role, type } = req.body;
+  const { email, password, role } = req.body;
   console.log("email:", email);
   console.log("password:", password);
   if (!email || !password)
@@ -193,13 +180,9 @@ export async function login(req, res) {
     email,
     password,
     role,
-    type,
   };
 
-  const table = await getTable(role, type);
-  if (!table) return res.status(404).send({ message: "Invalid role" });
-
-  const dbuser = await table.findUnique({
+  const dbuser = await prisma.user.findUnique({
     where: {
       email: email,
     },
@@ -217,7 +200,7 @@ export async function login(req, res) {
 
   // generating access token
   const accessToken = jwt.sign(
-    { email, role, type },
+    { email, role },
     process.env.ACCESS_TOKEN_SECRET
   );
   return res
