@@ -27,7 +27,7 @@ export default function VerifyEmail() {
           error?.response?.data?.message ||
             "An error occurred. Please try again."
         );
-      }
+      } 
     };
 
     fxn();

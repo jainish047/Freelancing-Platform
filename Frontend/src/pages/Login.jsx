@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Button from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../context/authSlice.js";
@@ -65,10 +65,10 @@ export default function Login() {
         const status = err.status || 500;
 
         toast({
-          variant:"destructive",
+          variant: "destructive",
           title: `Error ${status}`,
           description: message,
-          duration:3000
+          duration: 3000,
         });
 
         console.log("Error in login page:", message);
@@ -76,59 +76,51 @@ export default function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...form}>
+      <p className="text-center font-bold text-2xl underline">Login</p>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <FormItem>
+          <FormLabel>Email Address</FormLabel>
+          <FormControl>
+            <Input
+              {...register("email")}
+              type="email"
+              placeholder="abc123@email.com"
+              required
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
-            <FormItem>
-              <FormLabel>Email Address</FormLabel>
-              <FormControl>
-                <Input
-                  {...register("email")}
-                  type="email"
-                  placeholder="abc123@email.com"
-                  required
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        <FormItem>
+          <FormLabel>Password</FormLabel>
+          <FormControl>
+            <Input
+              {...register("password")}
+              type="password"
+              placeholder="••••••••"
+              required
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  {...register("password")}
-                  type="password"
-                  placeholder="••••••••"
-                  required
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Button type="submit" className="w-full">
+            Login
+          </Button>
+        )}
 
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            )}
-
-            <div className="flex items-center my-2 text-gray-400">
-              <hr className="flex-grow" />
-              <span className="mx-2 text-gray-600">or</span>
-              <hr className="flex-grow" />
-            </div>
-            <p className="text-center">
-              New user?{" "}
-              <Link to="/auth/signup" className="underline text-blue-700">
-                SignUp
-              </Link>
-            </p>
-          </form>
-        </Form>
-      </div>
-    </div>
+        
+        <p className="text-center">
+          New user?{" "}
+          <Link to="/auth/signup" className="underline text-blue-700">
+            SignUp
+          </Link>
+        </p>
+      </form>
+    </Form>
   );
 }

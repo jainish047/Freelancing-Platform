@@ -7,8 +7,9 @@ const initialState = {
     signup: false,
     fetchUserInfo: false,
     resendEmail:false,
-    signup: false
-    // more actions can be added as needed
+    signup: false,
+    projects: false,
+    skills: false
   }
 };
 

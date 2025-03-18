@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import Button from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../context/authSlice.js";
@@ -52,7 +52,7 @@ export default function Login() {
     dispatch(signupUser(values))
       .unwrap()
       .then(() => {
-        navigate("/auth/waitEmailVerify");
+        navigate("/verify/waitEmailVerify");
       })
       .catch((error) => {
         // Ensure you handle the error based on the structure you set in the thunk
@@ -71,96 +71,85 @@ export default function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Role Selector */}
-            <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
-              <label
-                className={`flex-1 p-1 text-center cursor-pointer rounded ${
-                  roleValue === "WORK" ? "bg-gray-600" : "bg-gray-400"
-                }`}
-              >
-                <input
-                  type="radio"
-                  value="WORK"
-                  {...register("role")}
-                  className="hidden"
-                />
-                Work
-              </label>
-              <label
-                className={`flex-1 p-1 text-center cursor-pointer rounded ${
-                  roleValue === "HIRE" ? "bg-gray-600" : "bg-gray-400"
-                }`}
-              >
-                <input
-                  type="radio"
-                  value="HIRE"
-                  {...register("role")}
-                  className="hidden"
-                />
-                Hire
-              </label>
-            </div>
+    <Form {...form}>
+      <p className="text-center font-bold text-2xl underline">Signup</p>
 
-            {/* Email Input */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="abc123@email.com"
-                      type="email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Role Selector */}
+        <div className="flex gap-1 bg-gray-200 p-1 rounded text-white my-6">
+          <label
+            className={`flex-1 p-1 text-center cursor-pointer rounded ${
+              roleValue === "WORK" ? "bg-gray-600" : "bg-gray-400"
+            }`}
+          >
+            <input
+              type="radio"
+              value="WORK"
+              {...register("role")}
+              className="hidden"
             />
-
-            {/* Password Input */}
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input placeholder="••••••••" type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            Work
+          </label>
+          <label
+            className={`flex-1 p-1 text-center cursor-pointer rounded ${
+              roleValue === "HIRE" ? "bg-gray-600" : "bg-gray-400"
+            }`}
+          >
+            <input
+              type="radio"
+              value="HIRE"
+              {...register("role")}
+              className="hidden"
             />
+            Hire
+          </label>
+        </div>
 
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Button type="submit" className="w-full">
-                Sign in
-              </Button>
-            )}
+        {/* Email Input */}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email Address</FormLabel>
+              <FormControl>
+                <Input placeholder="abc123@email.com" type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-            <div className="flex items-center my-2 text-gray-400">
-              <hr className="flex-grow" />
-              <span className="mx-2 text-gray-600">or</span>
-              <hr className="flex-grow" />
-            </div>
-            <p className="text-center mt-3">
-              Already have an account?{" "}
-              <Link to="/auth/login" className="underline text-blue-700">
-                Login
-              </Link>
-            </p>
-          </form>
-        </Form>
-      </div>
-    </div>
+        {/* Password Input */}
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="••••••••" type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Button type="submit" className="w-full">
+            Sign in
+          </Button>
+        )}
+
+        <p className="text-center mt-3">
+          Already have an account?{" "}
+          <Link to="/auth/login" className="underline text-blue-700">
+            Login
+          </Link>
+        </p>
+      </form>
+    </Form>
   );
 }

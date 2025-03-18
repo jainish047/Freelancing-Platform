@@ -1,26 +1,38 @@
-import UserCard from "../components/UserCard";
 import { Helmet } from "react-helmet-async";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function Explore() {
+  const location = useLocation(); // Get the current route
   return (
     <>
       <Helmet>
         <title>Explore</title>
       </Helmet>
-      <div className="flex flex-wrap gap-4 p-8">
-        <UserCard
-          name="Jane Doe"
-          bio="Software Engineer passionate about open-source and technology."
-          profilePicUrl="https://randomuser.me/api/portraits/women/44.jpg"
-          // onFollow={handleFollow}
-        />
-        <UserCard
-          name="John Smith"
-          bio="Full-stack developer who loves building scalable applications."
-          profilePicUrl="https://randomuser.me/api/portraits/men/44.jpg"
-          // onFollow={handleFollow}
-        />
-      </div>
+      <header className="flex items-center justify-between py-3 px-6 border-b bg-black  shadow-md">
+        <nav className="space-x-6 ">
+          <Link
+            to="freelancers"
+            className={`text-white p-1 ${
+              location.pathname === "/explore/freelancers"
+                ? "border-b-2 border-white"
+                : ""
+            }`}
+          >
+            Freelancers
+          </Link>
+          <Link
+            to="projects"
+            className={`text-white p-1 ${
+              location.pathname === "/explore/projects"
+                ? "border-b-2 border-white"
+                : ""
+            }`}
+          >
+            Projects
+          </Link>
+        </nav>
+      </header>
+      <Outlet />
     </>
   );
 }

@@ -1,7 +1,8 @@
 import prisma from "../prisma/prismaClient.js";
-import { UserRole } from '@prisma/client';
+import { UserRole } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import bcrypt from "bcrypt";
 
 const sendVerificationEmail = async (email, role, res) => {
   console.log("in sendVerificationEMail function");
@@ -13,15 +14,11 @@ const sendVerificationEmail = async (email, role, res) => {
     },
   });
 
-  const token = jwt.sign(
-    { email, role },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "1h",
-    }
-  );
+  const token = jwt.sign({ email, role }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1h",
+  });
 
-  const verificationUrl = `${process.env.FRONTEND_URL}/auth/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify/verify-email?token=${token}`;
 
   try {
     await transporter.sendMail({
@@ -90,9 +87,12 @@ export async function signup(req, res) {
       newUser = await prisma.user.create({
         data: {
           email,
-          password, // Store hashed password
-          role, // or "work"
-        }
+          password: await bcrypt.hash(
+            password,
+            parseInt(process.env.SALT_ROUNDS, 10)
+          ),
+          role: userRole,
+        },
       });
     } catch (err) {
       console.log("error creating user->", err);
@@ -105,7 +105,7 @@ export async function signup(req, res) {
 
     sendVerificationEmail(email, role, res);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(400).send({ message: "Something went wrong" });
   }
   //   return res.status(201).send({ message: "User created successfully", user: newUser });
@@ -187,13 +187,14 @@ export async function login(req, res) {
       email: email,
     },
   });
-  if (!dbuser) return res.status(404).send({ message: "No such user exist" });
+  if (!dbuser || !dbuser.password)
+    return res.status(404).send({ message: "No such user exist" });
 
   console.log(user.email, "tried to login");
 
   if (dbuser === null)
     return res.status(404).send({ message: "No such user exist" });
-  if (user.password !== dbuser.password)
+  if (!bcrypt.compare(password, dbuser.password))
     return res.status(400).send({ message: "Invalid password" });
   if (!dbuser.emailVerified)
     return res.status(403).send({ message: "Please verify your email" });
@@ -211,3 +212,39 @@ export async function login(req, res) {
     })
     .json({ user: dbuser, token: accessToken, message: "Token assigned" });
 }
+
+export const loginGoogle = (req, res) => {
+  // ✅ Generate JWT Token for the user
+  const token = jwt.sign(
+    { id: req.user._id, email: req.user.email },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "1h" } // Token expires in 1 hr
+  );
+  // Set token in HTTP-only cookie
+  res.cookie("authToken", token, {
+    httpOnly: true, // Prevents access via JavaScript
+    secure: process.env.NODE_ENV === "production", // Set secure flag in production (HTTPS)
+    maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expires in 7 days (milliseconds)
+    sameSite: "lax", // Adjust as needed for cross-site requests
+  });
+
+  // Redirect to the frontend without the token in the URL
+  res.redirect(process.env.FRONTEND_URL);
+};
+
+export const getMe = (req, res) => {
+  const token = req.cookies.authToken; // Get the token from the cookie
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    res.json({ user: decoded, token });
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid token" });
+  }
+};
+
+// how to implement JWT refresh tokens

@@ -1,12 +1,16 @@
-import {configureStore} from "@reduxjs/toolkit";
-import authReducer from "./authSlice"
-import loadingReducer from "./loadingSlice"
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./authSlice";
+import loadingReducer from "./loadingSlice";
+import projectFilterReducer from "./projectFiltersSlice";
+import generalReducer from "./generalSlice"
 
 const store = configureStore({
-    reducer:{
-        auth:authReducer,
-        loading:loadingReducer
-    }
-})
+  reducer: {
+    general: generalReducer,
+    auth: authReducer,
+    loading: loadingReducer,
+    projectFilter: projectFilterReducer,
+  },
+});
 
-export default store
+export default store;

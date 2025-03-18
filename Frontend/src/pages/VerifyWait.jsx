@@ -26,7 +26,7 @@ export default function VerifyWait() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-screen bg-gray-100 px-4">
+    <>
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="text-center text-xl font-semibold">
@@ -53,6 +53,6 @@ export default function VerifyWait() {
         </CardContent>
       </Card>
       <ToastContainer />
-    </div>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+// import "bootstrap/dist/css/bootstrap.min.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -13,6 +14,9 @@ import Auth from "./pages/Auth.jsx";
 import Profile from "./pages/Profile.jsx";
 import Explore from "./pages/Explore.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import ExploreFreelancers from "./pages/ExploreFreelancers.jsx";
+import ExploreProjects from "./pages/ExploreProjects.jsx";
+import Verify from "./pages/Verify.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -27,6 +31,12 @@ const Router = createBrowserRouter([
         path: "signup",
         element: <Signin />,
       },
+    ],
+  },
+  {
+    path: "verify",
+    element: <Verify />,
+    children: [
       {
         path: "waitEmailVerify",
         element: <VerifyWait />,
@@ -48,6 +58,16 @@ const Router = createBrowserRouter([
       {
         path: "explore",
         element: <Explore />,
+        children: [
+          {
+            path: "freelancers",
+            element: <ExploreFreelancers />,
+          },
+          {
+            path: "projects",
+            element: <ExploreProjects />,
+          },
+        ],
       },
       {
         path: "Profile/:id",

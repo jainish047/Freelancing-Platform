@@ -8,8 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DIRECT_URL") // Use DIRECT_URL for migrations
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // for migration
 }
 
 model user {
@@ -17,21 +18,23 @@ model user {
   name                String?
   profilePic          String?
   email               String    @unique
-  role                UserRole  // Updated to use enum
-  password            String?
+  role                UserRole // Updated to use enum
+  password            String? // Made optional
+  provider            String    @default("local") // "local", "google", etc.
+  googleId            String? // Optional: store Google’s unique ID
   phoneNumber         String?
   bio                 String?
   skills              String[]
   location            String?
   active              Boolean   @default(true)
   dob                 DateTime?
-  languages           String[]  // Allows multiple languages
+  languages           String[] // Allows multiple languages
   experience          Json?
   dateJoined          DateTime? @default(now())
   emailVerified       Boolean   @default(false)
   phoneNumberVerified Boolean   @default(false)
   projects            project[] @relation("ClientProjects") // Projects posted by this user
-  bids                bid[] @relation("UserBids") // Bids placed by this user
+  bids                bid[]     @relation("UserBids") // Bids placed by this user
   freelancingProjects project[] @relation("FreelancerProjects") // Projects user is working on
 }
 
@@ -41,16 +44,18 @@ model project {
   user           user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
   title          String
   description    String
-  budgetRange    String         // Example: "$500 - $1000"
+  // budgetRange    String         // Example: "$500 - $1000"
+  minBudget      Int
+  maxBudget      Int
   status         ProjectStatus @default(OPEN) // Tracks project progress
   createdAt      DateTime      @default(now())
   dueDate        DateTime?
-  documents      String[]       // Array of document URLs
-  skillsRequired String[]       // Example: ["React", "Node.js"]
+  documents      String[] // Array of document URLs
+  skillsRequired String[] // Example: ["React", "Node.js"]
   paymentMethod  PaymentType
-  bids           bid[] @relation("ProjectBids") // All bids on this project
-  assignedTo     String? @unique // Ensure only one freelancer per project
-  freelancer     user? @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
+  bids           bid[]         @relation("ProjectBids") // All bids on this project
+  assignedTo     String?       @unique // Ensure only one freelancer per project
+  freelancer     user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
 }
 
 model bid {
@@ -69,7 +74,7 @@ enum PaymentType {
   FIXED
 }
 
-enum UserRole { // Renamed for clarity
+enum UserRole {
   WORK
   HIRE
 }
