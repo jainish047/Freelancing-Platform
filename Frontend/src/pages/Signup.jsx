@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import Loader from "../components/Loader.jsx";
 
 // 1. Create a form schema
 const loginSchema = z.object({
@@ -30,7 +31,7 @@ const loginSchema = z.object({
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isLoading = useSelector((state) => state.loading.login);
+  const isLoading = useSelector((state) => state.loading.loadingStates.signup);
 
   // 2. Define the form with react-hook-form and zodResolver
   const form = useForm({
@@ -136,7 +137,7 @@ export default function Login() {
         />
 
         {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader/>
         ) : (
           <Button type="submit" className="w-full">
             Sign in

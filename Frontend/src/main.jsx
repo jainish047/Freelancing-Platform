@@ -6,7 +6,7 @@ import store from "./context/store";
 import { Provider } from "react-redux";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
-import Signin from "./pages/Signin.jsx";
+import Signup from "./pages/Signup.jsx";
 import Login from "./pages/Login.jsx";
 import VerifyWait from "./pages/VerifyWait.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
@@ -29,7 +29,7 @@ const Router = createBrowserRouter([
       },
       {
         path: "signup",
-        element: <Signin />,
+        element: <Signup />,
       },
     ],
   },

@@ -183,10 +183,10 @@ export default function Header() {
             <SheetHeader>
               {/* <SheetTitle
                 className="truncate"
-                title={`Hi ${user.fname || user.companyName || user.email}`}
+                title={`Hi ${user.name || user.companyName || user.email}`}
               /> */}
               <SheetTitle className="truncate">
-                Hi {user?.fname || user?.companyName || user?.email}
+                Hi, {user?.name || user?.companyName || user?.email}
               </SheetTitle>
               {/* <SheetDescription>
                 Make changes to your profile here. Click save when you're done.

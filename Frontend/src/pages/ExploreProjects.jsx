@@ -12,6 +12,7 @@ import {
   CommandItem,
   CommandGroup,
 } from "../components/ui/command";
+import { MapPin } from "lucide-react";
 
 export default function ExploreProjects() {
   const dispatch = useDispatch();
@@ -39,7 +40,12 @@ export default function ExploreProjects() {
 
       // Only add key-value pairs where the value is not null, undefined, or 0
       for (let [key, value] of Object.entries(filters)) {
-        if (value !== "" && value !== 0 && value !== "0-0") {
+        if (
+          value !== "" &&
+          value !== 0 &&
+          value !== "0-0" &&
+          value.length == 0
+        ) {
           newParams.set(key, value);
         }
       }
@@ -114,7 +120,7 @@ export default function ExploreProjects() {
       mergeSkills(
         projectFilter.skills
           .split(",")
-          .map((id) => allSkills.find((obj) => obj.id === Number(id))) // Convert id to number
+          .map((id) => allSkills?.find((obj) => obj.id === Number(id))) // Convert id to number
           .filter(Boolean), // Remove undefined values
         skills,
         "id"
@@ -176,7 +182,7 @@ export default function ExploreProjects() {
                     max="100"
                     step="1"
                     placeholder="0"
-                    className="w-full"
+                    className="w-full focus:outline-none focus:ring-0"
                     onChange={(event) => {
                       const prevBudget = projectFilter.budget.split("-") || [
                         0, 0,
@@ -207,7 +213,7 @@ export default function ExploreProjects() {
                     step="1"
                     placeholder="0"
                     value={parseInt(projectFilter.budget.split("-")[1]) || 0}
-                    className="w-full"
+                    className="w-full focus:outline-none focus:ring-0"
                     onChange={(event) => {
                       const prevBudget = projectFilter.budget.split("-") || [
                         0, 0,
@@ -247,7 +253,7 @@ export default function ExploreProjects() {
                 <CommandList
                   className={searchSkill !== "" ? "hidden" : "block"}
                 >
-                  {allSkills.map((skill) => (
+                  {allSkills?.map((skill) => (
                     <CommandItem key={skill.id}>{skill.name}</CommandItem>
                   ))}
                 </CommandList>
@@ -269,10 +275,23 @@ export default function ExploreProjects() {
                 );
               })}
             </div>
+            <div className="py-2">
+              <FilterHeading
+                title="Project Location"
+                prop="projectLocation"
+                def=""
+                dispatch={dispatch}
+                projectFilters={projectFilter}
+              />
+              <div className="border rounded flex justify-between items-center p-1 px-2 ">
+                <input type="text" className="focus:outline-none focus:ring-0 w-full" />
+                <button className="p-1"><MapPin size={20} color="black" /></button>
+              </div>
+            </div>
           </div>
           <div className="col-span-9 border rounded shadow-sm p-3">results</div>
         </div>
       </div>
     </div>
-  );
+  );  
 }

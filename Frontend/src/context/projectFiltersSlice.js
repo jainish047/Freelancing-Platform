@@ -3,7 +3,7 @@ import { fetchProjects } from "../API/projects";
 import { setLoadingState } from "./loadingSlice";
 
 const initialState = {
-  projects: [],
+  // projects: [],
   searchString: "",
   status: "",
   budget:"0-0",
