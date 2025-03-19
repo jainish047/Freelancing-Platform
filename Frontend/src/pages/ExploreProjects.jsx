@@ -18,6 +18,7 @@ export default function ExploreProjects() {
   const dispatch = useDispatch();
   const projectFilter = useSelector((state) => state.projectFilter);
   const allSkills = useSelector((state) => state.general.skills);
+  const allContries = useSelector((state) => state.general.countries);
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const navigate = useNavigate();
@@ -284,14 +285,42 @@ export default function ExploreProjects() {
                 projectFilters={projectFilter}
               />
               <div className="border rounded flex justify-between items-center p-1 px-2 ">
-                <input type="text" className="focus:outline-none focus:ring-0 w-full" />
-                <button className="p-1"><MapPin size={20} color="black" /></button>
+                <input
+                  type="text"
+                  className="focus:outline-none focus:ring-0 w-full"
+                />
+                <button className="p-1">
+                  <MapPin size={20} color="black" />
+                </button>
               </div>
+            </div>
+            <div>
+              <FilterHeading
+                title="Client's Country"
+                prop="clientLocation"
+                def=""
+                dispatch={dispatch}
+                projectFilters={projectFilter}
+              />
+              <Command className="border rounded-lg shadow-sm">
+                <CommandInput
+                  placeholder="Type a country..."
+                  onChange={(e) => setSearchSkill(e.target.value)}
+                  // value={searchSkill}
+                />
+                <CommandList
+                  className={searchSkill !== "" ? "block" : "hidden"}
+                >
+                  {allContries?.map((country) => (
+                    <CommandItem key={country.id}>{country.name}</CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
             </div>
           </div>
           <div className="col-span-9 border rounded shadow-sm p-3">results</div>
         </div>
       </div>
     </div>
-  );  
+  );
 }
