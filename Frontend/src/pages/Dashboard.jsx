@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import DashboardSidebar from "../components/DashboardSidebar";
 
 export default function Dashboard() {
   return (
@@ -6,7 +7,7 @@ export default function Dashboard() {
       <Helmet>
         <title>Dashboard</title>
       </Helmet>
-      <div>This is dashboard</div>
+      <>Dashboard</>
     </>
   );
 }

@@ -17,6 +17,11 @@ import Dashboard from "./pages/Dashboard.jsx";
 import ExploreFreelancers from "./pages/ExploreFreelancers.jsx";
 import ExploreProjects from "./pages/ExploreProjects.jsx";
 import Verify from "./pages/Verify.jsx";
+import Home from "./pages/Home.jsx";
+import Lists from "./pages/List.jsx";
+import Projects from "./pages/Projects.jsx";
+import Notification from "./pages/Notification.jsx";
+import ProjectUpdates from "./pages/ProjectUpdates.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -53,7 +58,29 @@ const Router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Dashboard />,
+        element: <Home />,
+        children: [
+          {
+            path: "dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "lists",
+            element: <Lists />,
+          },
+          {
+            path: "projects",
+            element: <Projects />,
+          },
+          {
+            path: "projectupdates",
+            element: <ProjectUpdates />,
+          },
+          {
+            path: "notifications",
+            element: <Notification />,
+          },
+        ],
       },
       {
         path: "explore",
