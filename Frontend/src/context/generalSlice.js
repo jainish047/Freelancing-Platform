@@ -78,7 +78,30 @@ const initialState = {
 
 export const getSkills = createAsyncThunk(
   "fetch/skills",
-  async (_, { rejectWithValue }) => {}
+  async (_, { rejectWithValue }) => {
+    try {
+      return initialState.skills;
+    } catch (err) {
+      return rejectWithValue({
+        message: err.message || "Skills fetching failed",
+        status: err.status || 500,
+      });
+    }
+  }
+);
+
+export const getCountries = createAsyncThunk(
+  "fetch/countries",
+  async (_, { rejectWithValue }) => {
+    try {
+      return initialState.countries;
+    } catch (err) {
+      return rejectWithValue({
+        message: err.message || "Countries fetching failed",
+        status: err.status || 500,
+      });
+    }
+  }
 );
 
 const generalSlice = createSlice({
@@ -96,6 +119,17 @@ const generalSlice = createSlice({
       })
       .addCase(getSkills.rejected, (state, action) => {
         setLoadingState({ actionName: "skills", isLoading: false });
+        console.error("Skills fetch failed:", action.payload);
+      })
+      .addCase(getCountries.pending, (state) => {
+        setLoadingState({ actionName: "countries", isLoading: true });
+      })
+      .addCase(getCountries.fulfilled, (state, action) => {
+        setLoadingState({ actionName: "countries", isLoading: false });
+        state.countries = action.payload;
+      })
+      .addCase(getCountries.rejected, (state, action) => {
+        setLoadingState({ actionName: "countries", isLoading: false });
         console.error("Skills fetch failed:", action.payload);
       });
   },

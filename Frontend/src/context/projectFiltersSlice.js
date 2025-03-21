@@ -9,7 +9,7 @@ const initialState = {
   budget:"0-0",
   skills: "",
   projectLocation: "",
-  clientLocation: "",
+  clientCountries: "",
   languages: "",
   page: 0,
 };

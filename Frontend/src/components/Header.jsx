@@ -66,7 +66,7 @@ export default function Header() {
   const { toast } = useToast();
 
   return (
-    <header className="flex items-center justify-between px-6 py-2 border-b bg-white shadow-md">
+    <header className="sticky top-0 w-full flex items-center justify-between px-6 py-2 border-b bg-white shadow-md">
       <div className="flex gap-4 items-center">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold">

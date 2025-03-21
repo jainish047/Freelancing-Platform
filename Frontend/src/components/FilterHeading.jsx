@@ -1,4 +1,5 @@
 import { Button } from "../components/ui/button";
+import { updateFilters } from "../context/projectFiltersSlice";
 
 export default function FilterHeading({title, prop, def, dispatch, projectFilters}) {
   return (
@@ -8,7 +9,7 @@ export default function FilterHeading({title, prop, def, dispatch, projectFilter
         variant="link"
         className="text-blue-600 bg-transparent border-none"
         onClick={() => {
-            dispatch(updateFilters({projectFilters, [prop]: def}));
+            dispatch(updateFilters({...projectFilters, [prop]: def}));
         }}
       >
         clear

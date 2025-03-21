@@ -6,7 +6,7 @@ import Header from "./components/Header";
 import { fetchUserDetails, setToken } from "./context/authSlice";
 import { setAuthToken } from "./API/axiosConfig";
 import { Toaster } from "./components/ui/toaster";
-import { getSkills } from "./context/generalSlice";
+import { getCountries, getSkills } from "./context/generalSlice";
 import { getToken } from "./API/authentication";
 import Footer from "./components/Footer";
 
@@ -41,10 +41,11 @@ function App() {
 
   useEffect(() => {
     dispatch(getSkills());
+    dispatch(getCountries());
   }, [dispatch]);
 
   return (
-    <div className="w-screen h-screen">
+    <div className="border w-screen h-screen  flex flex-col">
       <Header />
       <Outlet />
       <Toaster />
