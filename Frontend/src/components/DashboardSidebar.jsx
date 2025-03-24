@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { Home, Folder, List, ClipboardList, Bell } from "lucide-react";
+
+
 export default function DashboardSidebar(){
     const [activeMenu, setActiveMenu] = useState("Home");
 

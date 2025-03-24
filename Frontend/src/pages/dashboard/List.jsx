@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Home, Folder, List, Bell, User, ClipboardList, Bookmark, Eye, FileText, User } from "lucide-react";
+import { Home, Folder, List, Bell, User, ClipboardList, Bookmark, Eye, FileText } from "lucide-react";
 
 const Favorites = () => {
   console.log("Favorites function called");
@@ -323,7 +323,7 @@ const Bids = () => {
   );
 };
 
-const Bookmark = () => {
+const BookmarkList = () => {
   console.log("Bookmark function called");
   const [isBookmarkedUpdated, setIsBookmarkedUpdated] = useState(false);
 
@@ -413,7 +413,7 @@ const Bookmark = () => {
               <p className="mt-1">{project.countryFlag}</p>
               <div className="mt-4 flex space-x-3">
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow">See Details</button>
-                <button className="bg-green-500 text-white px-4 py-2 rounded-lg shadow" onClick={() => navigate("/Lists/Bids")}>Bid</button>
+                <button className="bg-green-500 text-white px-4 py-2 rounded-lg shadow" onClick={() => navigate("/List/Bids")}>Bid</button>
               </div>
               {/* Unbookmark Button */}
               <button
@@ -459,7 +459,7 @@ const ListsPage = () => {
       case "Bids":
         return <Bids />;
       case "Bookmark":
-        return <Bookmark />;
+        return <BookmarkList />;
       default:
         return <Favorites />; // Fallback in case of an unexpected value
     }
