@@ -11,7 +11,7 @@ const Blog = ({ isHighlighted }) => {
     It may contain multiple lines to explain the content in detail. 
     Keep reading to explore more information about this amazing blog post.
   `;
-
+  
   const truncatedDescription = description.split(' ').slice(0, 20).join(' ');
 
   return (
