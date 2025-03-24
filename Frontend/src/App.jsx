@@ -8,6 +8,7 @@ import { setAuthToken } from "./API/axiosConfig";
 import { Toaster } from "./components/ui/toaster";
 import { getSkills } from "./context/generalSlice";
 import { getToken } from "./API/authentication";
+import Footer from "./components/Footer";
 
 function App() {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ function App() {
       <Header />
       <Outlet />
       <Toaster />
+      <Footer/>
     </div>
   );
 }
