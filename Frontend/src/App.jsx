@@ -44,11 +44,10 @@ function App() {
   }, [dispatch]);
 
   return (
-    <div className="border w-screen h-screen  flex flex-col">
+    <div className="border w-screen h-screen flex flex-col">
       <Header />
       <Outlet />
       <Toaster />
-      
     </div>
   );
 }

@@ -101,7 +101,12 @@ async function filterProjects(req, res) {
       skip,
       take,
       include: {
-        user: true, // Include client details if needed
+        user: {
+          select: {
+            id: true,
+            name: true,
+          }, // Include client details if needed
+        },
       },
     });
     console.log("filtered projects->", projects);

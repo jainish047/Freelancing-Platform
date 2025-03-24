@@ -20,7 +20,7 @@ import ReactPaginate from "react-paginate";
 export default function ExploreProjects() {
   const dispatch = useDispatch();
   const projects = useSelector((state) => state.projectFilter.projects);
-  const projectFilter = useSelector((state) => state.projectFilter);
+  const projectFilter = useSelector((state) => state.projectFilter.filters);
   const allSkills = useSelector((state) => state.general.skills);
   const allCountries = useSelector((state) => state.general.countries);
   const projectsPerPage = useSelector((state) => state.general.projectsPerPage);
@@ -195,7 +195,7 @@ export default function ExploreProjects() {
       projectFilter.clientCountries.split(",").filter((s) => s !== "") || [];
     const updatedCountries = event.target.checked
       ? [...new Set([...prevCountries, String(country.id)])]
-      : prevSkills.filter((v) => v !== String(country.id));
+      : prevCountries.filter((v) => v !== String(country.id));
     console.log("updated countries->", updatedCountries);
 
     dispatch(
@@ -233,309 +233,307 @@ export default function ExploreProjects() {
   };
 
   return (
-    <div className="flex-1 grid grid-cols-12 gap-3 px-5 py-3 overflow-hidden">
-      {/* <div className="w-full mx-auto px-4"> */}
-      {/* <div className="grid grid-cols-12 gap-3"> */}
-      <div className="h-full overflow-auto hidden md:flex flex-col md:col-span-4 lg:col-span-3 border rounded shadow-md p-3 gap-3">
-        <header className="font-bold text-xl">Filters</header>
-        <div className="flex flex-col gap-1">
-          <FilterHeading
-            title="Status"
-            prop="status"
-            def=""
-            dispatch={dispatch}
-            projectFilters={projectFilter}
-          />
+    <div className="">
+      <div className="grid grid-cols-12 gap-3 flex-1 px-5 py-3">
+        <div className="h-fit overflow-auto hidden md:flex flex-col md:col-span-4 lg:col-span-3 border rounded shadow-md p-3 gap-3">
+          <header className="font-bold text-xl">Filters</header>
           <div className="flex flex-col gap-1">
-            {["Open", "In_progress", "Completed"].map((status) => {
-              return (
-                <label className="flex items-center" key={status}>
-                  <input
-                    type="checkbox"
-                    value={status}
-                    className="mr-2 form-checkbox bg-blue-600"
-                    checked={projectFilter.status.split(",").includes(status)}
-                    onChange={(event) => handleStatusChange(event)}
-                  />
-                  {status}
-                </label>
-              );
-            })}
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <FilterHeading
-            title="Budget"
-            prop="budget"
-            def={""}
-            dispatch={dispatch}
-            projectFilters={projectFilter}
-          />
-          <div className="flex flex-col gap-1">
-            <div className="flex flex-col">
-              <label htmlFor="budgetMin" className="font-semibold">
-                min:{" "}
-              </label>
-              <div className="flex border rounded shadow-sm p-1">
-                <span className="px-1">₹</span>
-                <input
-                  type="number"
-                  id="budgetMin"
-                  min="1"
-                  max="100"
-                  step="1"
-                  placeholder="0"
-                  className="w-full focus:outline-none focus:ring-0"
-                  onChange={(event) => {
-                    const prevBudget = projectFilter.budget.split("-") || [
-                      0, 0,
-                    ];
-                    prevBudget[0] = parseInt(event.target.value) || 0;
-                    dispatch(
-                      updateFilters({
-                        ...projectFilter,
-                        budget: prevBudget.join("-"),
-                      })
-                    );
-                  }}
-                  value={parseInt(projectFilter.budget.split("-")[0]) || 0}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="budgetMax" className="font-semibold">
-                max:{" "}
-              </label>
-              <div className="flex border rounded shadow-sm p-1">
-                <span className="px-1">₹</span>
-                <input
-                  type="number"
-                  id="budgetMax"
-                  min="1"
-                  max="100"
-                  step="1"
-                  placeholder="0"
-                  value={parseInt(projectFilter.budget.split("-")[1]) || 0}
-                  className="w-full focus:outline-none focus:ring-0"
-                  onChange={(event) => {
-                    const prevBudget = projectFilter.budget.split("-") || [
-                      0, 0,
-                    ];
-                    prevBudget[1] = parseInt(event.target.value) || 0;
-                    dispatch(
-                      updateFilters({
-                        ...projectFilter,
-                        budget: prevBudget.join("-"),
-                      })
-                    );
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          {isNaN(projectFilter.budget.split("-")[0]) ||
-            isNaN(projectFilter.budget.split("-")[1]) ||
-            (Number(projectFilter.budget.split("-")[0]) >
-              Number(projectFilter.budget.split("-")[1]) && (
-              <p className="text-red-600">Please enter correct range</p>
-            ))}
-        </div>
-        <div className="flex flex-col gap-1">
-          <FilterHeading
-            title="Skills"
-            prop="skills"
-            def=""
-            dispatch={dispatch}
-            projectFilters={projectFilter}
-          />
-          <Command className="border rounded-lg shadow-sm">
-            <CommandInput
-              placeholder="Type a skill..."
-              onValueChange={(value) => {
-                console.log("search input", value);
-                setSearchSkill(value);
-              }}
-              value={searchSkill}
+            <FilterHeading
+              title="Status"
+              prop="status"
+              def=""
+              dispatch={dispatch}
+              projectFilters={projectFilter}
             />
-            <CommandList
-              className={`max-h-20 overflow-y-auto shadow-sm 
+            <div className="flex flex-col gap-1">
+              {["Open", "In_progress", "Completed"].map((status) => {
+                return (
+                  <label className="flex items-center" key={status}>
+                    <input
+                      type="checkbox"
+                      value={status}
+                      className="mr-2 form-checkbox bg-blue-600"
+                      checked={projectFilter.status.split(",").includes(status)}
+                      onChange={(event) => handleStatusChange(event)}
+                    />
+                    {status}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <FilterHeading
+              title="Budget"
+              prop="budget"
+              def={""}
+              dispatch={dispatch}
+              projectFilters={projectFilter}
+            />
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-col">
+                <label htmlFor="budgetMin" className="font-semibold">
+                  Min:
+                </label>
+                <div className="flex border rounded shadow-sm p-1">
+                  <span className="px-1">₹</span>
+                  <input
+                    type="number"
+                    id="budgetMin"
+                    min="1"
+                    max="100"
+                    step="1"
+                    placeholder="0"
+                    className="w-full focus:outline-none focus:ring-0"
+                    onChange={(event) => {
+                      const prevBudget = projectFilter.budget.split("-") || [
+                        0, 0,
+                      ];
+                      prevBudget[0] = parseInt(event.target.value) || 0;
+                      dispatch(
+                        updateFilters({
+                          ...projectFilter,
+                          budget: prevBudget.join("-"),
+                        })
+                      );
+                    }}
+                    value={parseInt(projectFilter.budget.split("-")[0]) || 0}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="budgetMax" className="font-semibold">
+                  Max:
+                </label>
+                <div className="flex border rounded shadow-sm p-1">
+                  <span className="px-1">₹</span>
+                  <input
+                    type="number"
+                    id="budgetMax"
+                    min="1"
+                    max="100"
+                    step="1"
+                    placeholder="0"
+                    value={parseInt(projectFilter.budget.split("-")[1]) || 0}
+                    className="w-full focus:outline-none focus:ring-0"
+                    onChange={(event) => {
+                      const prevBudget = projectFilter.budget.split("-") || [
+                        0, 0,
+                      ];
+                      prevBudget[1] = parseInt(event.target.value) || 0;
+                      dispatch(
+                        updateFilters({
+                          ...projectFilter,
+                          budget: prevBudget.join("-"),
+                        })
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+            {isNaN(projectFilter.budget.split("-")[0]) ||
+              isNaN(projectFilter.budget.split("-")[1]) ||
+              (Number(projectFilter.budget.split("-")[0]) >
+                Number(projectFilter.budget.split("-")[1]) && (
+                <p className="text-red-600">Please enter correct range</p>
+              ))}
+          </div>
+          <div className="flex flex-col gap-1">
+            <FilterHeading
+              title="Skills"
+              prop="skills"
+              def=""
+              dispatch={dispatch}
+              projectFilters={projectFilter}
+            />
+            <Command className="border rounded-lg shadow-sm">
+              <CommandInput
+                placeholder="Type a skill..."
+                onValueChange={(value) => {
+                  console.log("search input", value);
+                  setSearchSkill(value);
+                }}
+                value={searchSkill}
+              />
+              <CommandList
+                className={`max-h-20 overflow-y-auto shadow-sm 
                 ${searchSkill ? "block" : "hidden"}`}
-            >
-              {allSkills?.map((skill) => (
-                <CommandItem
-                  key={skill.id}
-                  onSelect={() => handleSkillsSelection(skill)}
-                  className="cursor-pointer"
-                >
-                  {skill.name}
-                </CommandItem>
-              ))}
-            </CommandList>
-          </Command>
-          <div className="flex flex-col px-3 gap-1">
-            {skills.map((skill) => {
-              return (
-                <label
-                  className="flex items-center"
-                  key={skill.id}
-                  htmlFor={skill.id}
-                >
-                  <input
-                    type="checkbox"
-                    value={skill}
-                    id={skill.id}
-                    className="mr-2 form-checkbox bg-blue-600"
-                    checked={projectFilter.skills
-                      .split(",")
-                      .includes(String(skill.id))}
-                    onChange={(event) => handleSkillsChange(event, skill)}
-                  />
-                  {skill.name}
-                </label>
-              );
-            })}
+              >
+                {allSkills?.map((skill) => (
+                  <CommandItem
+                    key={skill.id}
+                    onSelect={() => handleSkillsSelection(skill)}
+                    className="cursor-pointer"
+                  >
+                    {skill.name}
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </Command>
+            <div className="flex flex-col px-3 gap-1">
+              {skills.map((skill) => {
+                return (
+                  <label
+                    className="flex items-center"
+                    key={skill.id}
+                    htmlFor={skill.id}
+                  >
+                    <input
+                      type="checkbox"
+                      value={skill}
+                      id={skill.id}
+                      className="mr-2 form-checkbox bg-blue-600"
+                      checked={projectFilter.skills
+                        .split(",")
+                        .includes(String(skill.id))}
+                      onChange={(event) => handleSkillsChange(event, skill)}
+                    />
+                    {skill.name}
+                  </label>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <FilterHeading
-            title="Project Location"
-            prop="projectLocation"
-            def=""
-            dispatch={dispatch}
-            projectFilters={projectFilter}
-          />
-          <div className="border shadow rounded-lg flex justify-between items-center p-1 px-2">
-            <input
-              type="text"
-              placeholder="Location"
-              className="focus:outline-none focus:ring-0 w-full"
+          <div className="flex flex-col gap-1">
+            <FilterHeading
+              title="Project Location"
+              prop="projectLocation"
+              def=""
+              dispatch={dispatch}
+              projectFilters={projectFilter}
             />
-            <button className="p-1">
-              <MapPin size={20} color="black" />
-            </button>
+            <div className="border shadow rounded-lg flex justify-between items-center p-1 px-2">
+              <input
+                type="text"
+                placeholder="Location"
+                className="focus:outline-none focus:ring-0 w-full"
+              />
+              <button className="p-1">
+                <MapPin size={20} color="black" />
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <FilterHeading
-            title="Client's Country"
-            prop="clientCountries"
-            def=""
-            dispatch={dispatch}
-            projectFilters={projectFilter}
-          />
-          <Command className="border rounded-lg shadow-sm">
-            <CommandInput
-              placeholder="Type a country..."
-              onValueChange={(value) => {
-                console.log("search input", value);
-                setSearchCountry(value);
-              }}
-              value={searchCountry}
+          <div className="flex flex-col gap-1">
+            <FilterHeading
+              title="Client's Country"
+              prop="clientCountries"
+              def=""
+              dispatch={dispatch}
+              projectFilters={projectFilter}
             />
-            <CommandList
-              className={`max-h-20 overflow-y-auto shadow-sm 
+            <Command className="border rounded-lg shadow-sm">
+              <CommandInput
+                placeholder="Type a country..."
+                onValueChange={(value) => {
+                  console.log("search input", value);
+                  setSearchCountry(value);
+                }}
+                value={searchCountry}
+              />
+              <CommandList
+                className={`max-h-20 overflow-y-auto shadow-sm 
                 ${searchCountry ? "block" : "hidden"}`}
-            >
-              {allCountries?.map((country) => (
-                <CommandItem
-                  key={country.id}
-                  onSelect={() => handleCountrySelection(country)}
-                  className="cursor-pointer"
-                >
-                  {country.name}
-                </CommandItem>
-              ))}
-            </CommandList>
-          </Command>
-          <div className="flex flex-col px-3 gap-1">
-            {countries.map((country) => {
-              return (
-                <label
-                  className="flex items-center"
-                  key={country.id}
-                  htmlFor={country.id}
-                >
-                  <input
-                    type="checkbox"
-                    value={country}
-                    id={country.id}
-                    className="mr-2 form-checkbox bg-blue-600"
-                    checked={projectFilter.clientCountries
-                      .split(",")
-                      .includes(String(country.id))}
-                    onChange={(event) => handleCountryChange(event, country)}
-                  />
-                  {country.name}
-                </label>
-              );
-            })}
+              >
+                {allCountries?.map((country) => (
+                  <CommandItem
+                    key={country.id}
+                    onSelect={() => handleCountrySelection(country)}
+                    className="cursor-pointer"
+                  >
+                    {country.name}
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </Command>
+            <div className="flex flex-col px-3 gap-1">
+              {countries.map((country) => {
+                return (
+                  <label
+                    className="flex items-center"
+                    key={country.id}
+                    htmlFor={country.id}
+                  >
+                    <input
+                      type="checkbox"
+                      value={country}
+                      id={country.id}
+                      className="mr-2 form-checkbox bg-blue-600"
+                      checked={projectFilter.clientCountries
+                        .split(",")
+                        .includes(String(country.id))}
+                      onChange={(event) => handleCountryChange(event, country)}
+                    />
+                    {country.name}
+                  </label>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="overflow-hidden col-span-12 md:col-span-8 lg:col-span-9 flex flex-col gap-2 border rounded shadow-md p-3">
-        <header className="flex justify-between items-center">
-          <p className="font-bold text-xl">Projects</p>
-          <div>
-            <label>Sort by: </label>
-            <select
-              value={projectFilter.sortBy}
-              onChange={(event) => {
+        <div className="h-full col-span-12 md:col-span-8 lg:col-span-9 flex flex-col gap-2 border rounded shadow-md p-3">
+          <header className="flex justify-between items-center">
+            <p className="font-bold text-xl">Projects</p>
+            <div>
+              <label>Sort by: </label>
+              <select
+                value={projectFilter.sortBy}
+                onChange={(event) => {
+                  dispatch(
+                    updateFilters({
+                      ...projectFilter,
+                      sortBy: event.target.value,
+                    })
+                  );
+                }}
+                className="bg-white border p-1"
+              >
+                <option value="">Latest</option>
+                <option value="oldest">Oldest</option>
+                <option value="lowprice">Lowest Price</option>
+                <option value="highprice">Highest Price</option>
+                <option value="lowbids">Lowest Bids</option>
+                <option value="highbids">Highest Bids</option>
+              </select>
+            </div>
+          </header>
+          <hr />
+          <div className="h-full overflow-auto flex flex-col justify-center gap-2 p-3">
+            {projects.map((project) => {
+              return (
+                <Project
+                  key={project.id}
+                  project={project}
+                  // onProjectClick={handleProjectClick}
+                />
+              );
+            })}
+            <ReactPaginate
+              previousLabel={"← Prev"}
+              nextLabel={"Next →"}
+              breakLabel={"..."}
+              pageCount={projectFilter.totalPages}
+              forcePage={projectFilter.page} // Keeps track of active page
+              onPageChange={(event) => {
                 dispatch(
-                  updateFilters({
-                    ...projectFilter,
-                    sortBy: event.target.value,
-                  })
+                  updateFilters({ ...projectFilter, page: event.selected })
                 );
               }}
-              className="bg-white border p-1"
-            >
-              <option value="">Latest</option>
-              <option value="oldest">Oldest</option>
-              <option value="lowprice">Lowest Price</option>
-              <option value="highprice">Highest Price</option>
-              <option value="lowbids">Lowest Bids</option>
-              <option value="highbids">Highest Bids</option>
-            </select>
+              marginPagesDisplayed={1} // Number of pages at the start and end
+              pageRangeDisplayed={3} // Number of pages in the middle
+              containerClassName="flex justify-center space-x-2 mt-4"
+              pageClassName="border rounded-md bg-gray-100 hover:border-blue-500"
+              pageLinkClassName="block px-4 py-2 w-full h-full text-center" // FIX: Makes full box clickable
+              activeClassName="bg-blue-500 text-white"
+              previousClassName="border rounded-md bg-gray-200 hover:bg-blue-500 hover:text-white"
+              previousLinkClassName="block px-4 py-2 w-full h-full text-center" // Ensures full button is clickable
+              nextClassName="border rounded-md bg-gray-200 hover:bg-blue-500 hover:text-white"
+              nextLinkClassName="block px-4 py-2 w-full h-full text-center" // Ensures full button is clickable
+              breakClassName="px-4 py-2"
+            />
           </div>
-        </header>
-        <hr />
-        <div className="overflow-auto flex flex-col justify-center gap-2 p-3">
-          {projects.map((project) => {
-            return (
-              <Project
-                key={project.id}
-                project={project}
-                // onProjectClick={handleProjectClick}
-              />
-            );
-          })}
-          <ReactPaginate
-            previousLabel={"← Prev"}
-            nextLabel={"Next →"}
-            breakLabel={"..."}
-            pageCount={projectFilter.totalPages}
-            forcePage={projectFilter.page} // Keeps track of active page
-            onPageChange={(event) => {
-              dispatch(
-                updateFilters({ ...projectFilter, page: event.selected })
-              );
-            }}
-            marginPagesDisplayed={1} // Number of pages at the start and end
-            pageRangeDisplayed={3} // Number of pages in the middle
-            containerClassName="flex justify-center space-x-2 mt-4"
-            pageClassName="border rounded-md bg-gray-100 hover:border-blue-500"
-            pageLinkClassName="block px-4 py-2 w-full h-full text-center" // FIX: Makes full box clickable
-            activeClassName="bg-blue-500 text-white"
-            previousClassName="border rounded-md bg-gray-200 hover:bg-blue-500 hover:text-white"
-            previousLinkClassName="block px-4 py-2 w-full h-full text-center" // Ensures full button is clickable
-            nextClassName="border rounded-md bg-gray-200 hover:bg-blue-500 hover:text-white"
-            nextLinkClassName="block px-4 py-2 w-full h-full text-center" // Ensures full button is clickable
-            breakClassName="px-4 py-2"
-          />
         </div>
       </div>
-      {/* </div> */}
-      {/* </div> */}
     </div>
   );
 }

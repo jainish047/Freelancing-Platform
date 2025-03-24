@@ -17,10 +17,13 @@ import ExploreFreelancers from "./pages/ExploreFreelancers.jsx";
 import ExploreProjects from "./pages/projects/ExploreProjects.jsx";
 import Verify from "./pages/authentication/Verify.jsx";
 import Home from "./pages/Home.jsx";
-import List from "./pages/List.jsx";
-import Projects from "./pages/Projects.jsx";
-import Notification from "./pages/Notification.jsx";
-import ProjectUpdates from "./pages/ProjectUpdates.jsx";
+import List from "./pages/dashboard/List.jsx";
+import Projects from "./pages/dashboard/Projects.jsx";
+import Notification from "./pages/dashboard/Notification.jsx";
+import ProjectUpdates from "./pages/dashboard/ProjectUpdates.jsx";
+import ProjectDetails from "./pages/projects/ProjectDetails.jsx";
+import ProjectNotFound from "./pages/notFoundPages/ProjectNotFound.jsx";
+import NotFound from "./pages/notFoundPages/PageNotFound.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -65,7 +68,7 @@ const Router = createBrowserRouter([
           },
           {
             path: "lists",
-            element: <Lists />,
+            element: <List />,
           },
           {
             path: "projects",

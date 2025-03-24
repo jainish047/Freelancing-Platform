@@ -24,15 +24,15 @@ export default function Project({ project }) {
   return (
     <div
       className="bg-white rounded-lg shadow-md p-6 border hover:bg-gray-100 cursor-pointer"
-      onClick={() => {navigate(`/projects/${project.id}`)}}
+      onClick={() => {
+        navigate(`/projects/${project.id}`);
+      }}
     >
       {/* Project Owner Name */}
       <div className="flex justify-between mb-2">
         <div className="">
-          <p className="text-xl font-bold text-blue-600">
-            {project.projectName}
-          </p>
-          <p className="">{project.ownerName}</p>
+          <p className="text-xl font-bold text-blue-600">{project.title}</p>
+          <p className="">{project.user.name}</p>
         </div>
 
         {/* Average Bid Price and Total Bids */}
@@ -52,7 +52,7 @@ export default function Project({ project }) {
       <div className="mb-2">
         <span className="text-gray-600">Budget: </span>
         <span className="font-medium">
-          ${project.budgetRange.min} - ${project.budgetRange.max}
+          ${project.minBudget} - ${project.maxBudget}
         </span>
       </div>
 
@@ -61,11 +61,15 @@ export default function Project({ project }) {
         <span className="text-gray-700">
           {showFullDescription
             ? project.description
-            : `${project.description.substring(0, 150)}${(project.description.length>150)?"...":""}`}
+            : `${project.description.substring(0, 150)}${
+                project.description.length > 150 ? "..." : ""
+              }`}
         </span>
         {project.description.length > 150 && (
           <span
-            onClick={(event)=>{toggleDescription(event)}}
+            onClick={(event) => {
+              toggleDescription(event);
+            }}
             className="cursor-pointer text-blue-500 hover:text-blue-600 focus:outline-none focus:ring-0"
           >
             {showFullDescription ? "show Less" : "show More"}
@@ -78,7 +82,7 @@ export default function Project({ project }) {
         <div className="">
           <h4 className="text-gray-600 font-medium mb-2">Required Skills:</h4>
           <div className="flex flex-wrap">
-            {project.requiredSkills.map((skill, index) => (
+            {project.skillsRequired.map((skill, index) => (
               <span
                 key={index}
                 className="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-sm mr-2 mb-2"
@@ -90,7 +94,13 @@ export default function Project({ project }) {
         </div>
 
         {/* Save/Bookmark Button */}
-        <button className="flex items-center text-blue-500 hover:text-blue-600 focus:outline-none focus:ring-0">
+        <button
+          className="flex items-center text-blue-500 hover:text-blue-600 focus:outline-none focus:ring-0 p-0"
+          onClick={(event) => {
+            event.stopPropagation();
+            // add to bookmark list
+          }}
+        >
           <svg
             className="w-5 h-5 mr-2"
             fill="none"

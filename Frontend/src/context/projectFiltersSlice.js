@@ -4,25 +4,27 @@ import { setLoadingState } from "./loadingSlice";
 
 const initialState = {
   projects: [],
-  q: "",
-  status: "",
-  budget: "0-0",
-  skills: "",
-  projectLocation: "",
-  clientCountries: "",
-  languages: "",
-  sortBy: "",
-  page: 0,
-  totalPages: 10,
+  filters: {
+    q: "",
+    status: "",
+    budget: "0-0",
+    skills: "",
+    projectLocation: "",
+    clientCountries: "",
+    languages: "",
+    sortBy: "",
+    page: 0,
+    totalPages: 10,
+  },
 };
 
 export const filterProjects = createAsyncThunk(
   "filter/projects",
   async (_, { getState, rejectWithValue }) => {
     try {
-      const filters = getState().projectFilter;
-      const responce = await fetchProjects(filters);
-      return responce.data;
+      // const filters = getState().projectFilter;
+      const responce = await fetchProjects();
+      return responce.data.projects;
     } catch (err) {
       console.log("error in project slice->", err);
       return rejectWithValue({
@@ -38,7 +40,7 @@ export const projectFilterSlice = createSlice({
   initialState,
   reducers: {
     updateFilters: (state, action) => {
-      Object.assign(state, action.payload);
+      Object.assign(state.filters, action.payload);
       // Merge new filters with existing state
       // filterProjects();
       console.log("filters->", state.status);
