@@ -13,10 +13,10 @@ import { Input } from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../context/authSlice.js";
+import { loginUser } from "../../context/authSlice.js";
 import { Loader2, Variable } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Loader from "../components/Loader.jsx";
+import Loader from "../../components/Loader.jsx";
 
 // 1. Create a form schema
 const loginSchema = z.object({

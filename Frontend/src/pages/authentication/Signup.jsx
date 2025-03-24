@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signupUser } from "../context/authSlice.js";
+import { signupUser } from "../../context/authSlice.js";
 import { Loader2 } from "lucide-react";
 import {
   Form,
@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import Loader from "../components/Loader.jsx";
+import Loader from "../../components/Loader.jsx";
 
 // 1. Create a form schema
 const loginSchema = z.object({

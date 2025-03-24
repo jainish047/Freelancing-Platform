@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { resendVerificationEMail } from "../API/authentication";
+import { resendVerificationEMail } from "../../API/authentication";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@/components/ui/button";

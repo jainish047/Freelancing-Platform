@@ -3,15 +3,17 @@ import { fetchProjects } from "../API/projects";
 import { setLoadingState } from "./loadingSlice";
 
 const initialState = {
-  // projects: [],
-  searchString: "",
+  projects: [],
+  q: "",
   status: "",
-  budget:"0-0",
+  budget: "0-0",
   skills: "",
   projectLocation: "",
   clientCountries: "",
   languages: "",
+  sortBy: "",
   page: 0,
+  totalPages: 10,
 };
 
 export const filterProjects = createAsyncThunk(
@@ -38,7 +40,7 @@ export const projectFilterSlice = createSlice({
     updateFilters: (state, action) => {
       Object.assign(state, action.payload);
       // Merge new filters with existing state
-      filterProjects();
+      // filterProjects();
       console.log("filters->", state.status);
     },
   },

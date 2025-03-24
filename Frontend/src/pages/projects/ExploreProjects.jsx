@@ -1,24 +1,29 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Button } from "../components/ui/button";
-import { updateFilters } from "../context/projectFiltersSlice";
+import { Button } from "../../components/ui/button";
+import { updateFilters } from "../../context/projectFiltersSlice";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { filterProjects } from "../context/projectFiltersSlice";
-import FilterHeading from "../components/FilterHeading";
+import { filterProjects } from "../../context/projectFiltersSlice";
+import FilterHeading from "../../components/FilterHeading";
 import {
   Command,
   CommandInput,
   CommandList,
   CommandItem,
   CommandGroup,
-} from "../components/ui/command";
+} from "../../components/ui/command";
 import { MapPin } from "lucide-react";
+import Project from "../../components/Project";
+import { projects } from "../../dummydata";
+import ReactPaginate from "react-paginate";
 
 export default function ExploreProjects() {
   const dispatch = useDispatch();
+  const projects = useSelector((state) => state.projectFilter.projects);
   const projectFilter = useSelector((state) => state.projectFilter);
   const allSkills = useSelector((state) => state.general.skills);
   const allCountries = useSelector((state) => state.general.countries);
+  const projectsPerPage = useSelector((state) => state.general.projectsPerPage);
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const navigate = useNavigate();
@@ -40,7 +45,9 @@ export default function ExploreProjects() {
             value === 0 ||
             (key === "budget" &&
               (value === "0-0" ||
-                Number(value.split("-")[0]) > Number(value.split("-")[1])))
+                Number(value.split("-")[0]) > Number(value.split("-")[1]))) ||
+            key === "totalPages" ||
+            key === "projects"
           )
         ) {
           newParams.set(key, value);
@@ -51,6 +58,8 @@ export default function ExploreProjects() {
       if (search !== `?${newParams.toString()}`) {
         navigate({ search: newParams.toString() });
       }
+
+      dispatch(filterProjects());
     },
     [search, navigate]
   );
@@ -463,8 +472,67 @@ export default function ExploreProjects() {
           </div>
         </div>
       </div>
-      <div className="overflow-auto col-span-12 md:col-span-8 lg:col-span-9 border rounded shadow-md p-3">
-        Projects
+      <div className="overflow-hidden col-span-12 md:col-span-8 lg:col-span-9 flex flex-col gap-2 border rounded shadow-md p-3">
+        <header className="flex justify-between items-center">
+          <p className="font-bold text-xl">Projects</p>
+          <div>
+            <label>Sort by: </label>
+            <select
+              value={projectFilter.sortBy}
+              onChange={(event) => {
+                dispatch(
+                  updateFilters({
+                    ...projectFilter,
+                    sortBy: event.target.value,
+                  })
+                );
+              }}
+              className="bg-white border p-1"
+            >
+              <option value="">Latest</option>
+              <option value="oldest">Oldest</option>
+              <option value="lowprice">Lowest Price</option>
+              <option value="highprice">Highest Price</option>
+              <option value="lowbids">Lowest Bids</option>
+              <option value="highbids">Highest Bids</option>
+            </select>
+          </div>
+        </header>
+        <hr />
+        <div className="overflow-auto flex flex-col justify-center gap-2 p-3">
+          {projects.map((project) => {
+            return (
+              <Project
+                key={project.id}
+                project={project}
+                // onProjectClick={handleProjectClick}
+              />
+            );
+          })}
+          <ReactPaginate
+            previousLabel={"← Prev"}
+            nextLabel={"Next →"}
+            breakLabel={"..."}
+            pageCount={projectFilter.totalPages}
+            forcePage={projectFilter.page} // Keeps track of active page
+            onPageChange={(event) => {
+              dispatch(
+                updateFilters({ ...projectFilter, page: event.selected })
+              );
+            }}
+            marginPagesDisplayed={1} // Number of pages at the start and end
+            pageRangeDisplayed={3} // Number of pages in the middle
+            containerClassName="flex justify-center space-x-2 mt-4"
+            pageClassName="border rounded-md bg-gray-100 hover:border-blue-500"
+            pageLinkClassName="block px-4 py-2 w-full h-full text-center" // FIX: Makes full box clickable
+            activeClassName="bg-blue-500 text-white"
+            previousClassName="border rounded-md bg-gray-200 hover:bg-blue-500 hover:text-white"
+            previousLinkClassName="block px-4 py-2 w-full h-full text-center" // Ensures full button is clickable
+            nextClassName="border rounded-md bg-gray-200 hover:bg-blue-500 hover:text-white"
+            nextLinkClassName="block px-4 py-2 w-full h-full text-center" // Ensures full button is clickable
+            breakClassName="px-4 py-2"
+          />
+        </div>
       </div>
       {/* </div> */}
       {/* </div> */}

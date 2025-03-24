@@ -74,6 +74,7 @@ const initialState = {
       name: "Brazil",
     },
   ],
+  projectsPerPage:10,
 };
 
 export const getSkills = createAsyncThunk(

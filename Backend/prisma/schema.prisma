@@ -44,7 +44,6 @@ model project {
   user           user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
   title          String
   description    String
-  // budgetRange    String         // Example: "$500 - $1000"
   minBudget      Int
   maxBudget      Int
   status         ProjectStatus @default(OPEN) // Tracks project progress
@@ -52,7 +51,7 @@ model project {
   dueDate        DateTime?
   documents      String[] // Array of document URLs
   skillsRequired String[] // Example: ["React", "Node.js"]
-  paymentMethod  PaymentType
+  paymentMethod  PaymentType?
   bids           bid[]         @relation("ProjectBids") // All bids on this project
   assignedTo     String?       @unique // Ensure only one freelancer per project
   freelancer     user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
@@ -84,4 +83,14 @@ enum ProjectStatus {
   IN_PROGRESS
   COMPLETED
   CANCELED
+}
+
+model skills{
+  id       Int   @id @default(autoincrement())
+  name     String
+}
+
+model Country {
+  id   Int    @id @default(autoincrement())
+  name String @unique
 }

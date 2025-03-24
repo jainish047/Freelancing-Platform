@@ -6,22 +6,24 @@ import store from "./context/store";
 import { Provider } from "react-redux";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
-import Signup from "./pages/Signup.jsx";
-import Login from "./pages/Login.jsx";
-import VerifyWait from "./pages/VerifyWait.jsx";
-import VerifyEmail from "./pages/VerifyEmail.jsx";
-import Auth from "./pages/Auth.jsx";
+import Signup from "./pages/authentication/Signup.jsx";
+import Login from "./pages/authentication/Login.jsx";
+import VerifyWait from "./pages/authentication/VerifyWait.jsx";
+import VerifyEmail from "./pages/authentication/VerifyEmail.jsx";
+import Auth from "./pages/authentication/Auth.jsx";
 import Profile from "./pages/Profile.jsx";
-import Explore from "./pages/Explore.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import ExploreFreelancers from "./pages/ExploreFreelancers.jsx";
-import ExploreProjects from "./pages/ExploreProjects.jsx";
-import Verify from "./pages/Verify.jsx";
+import ExploreProjects from "./pages/projects/ExploreProjects.jsx";
+import Verify from "./pages/authentication/Verify.jsx";
 import Home from "./pages/Home.jsx";
-import Lists from "./pages/List.jsx";
-import Projects from "./pages/Projects.jsx";
-import Notification from "./pages/Notification.jsx";
-import ProjectUpdates from "./pages/ProjectUpdates.jsx";
+import Lists from "./pages/dashboard/List.jsx";
+import Projects from "./pages/dashboard/Projects.jsx";
+import Notification from "./pages/dashboard/Notification.jsx";
+import ProjectUpdates from "./pages/dashboard/ProjectUpdates.jsx";
+import NotFound from "./pages/notFoundPages/PageNotFound.jsx";
+import ProjectNotFound from "./pages/notFoundPages/ProjectNotFound.jsx";
+import ProjectDetails from "./pages/projects/ProjectDetails.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -70,7 +72,21 @@ const Router = createBrowserRouter([
           },
           {
             path: "projects",
-            element: <Projects />,
+            // element: <Projects />,
+            children: [
+              {
+                path: "",
+                element: <Projects />,
+              },
+              {
+                path: ":id",
+                element: <ProjectDetails />,
+              },
+              {
+                path: "*",
+                element: <ProjectNotFound />,
+              },
+            ]
           },
           {
             path: "projectupdates",
@@ -109,6 +125,11 @@ const Router = createBrowserRouter([
         element: <Profile />,
       },
     ],
+  },
+  // Catch-all route for 404 Page Not Found
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 
