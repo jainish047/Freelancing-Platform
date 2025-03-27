@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 
 const initialState = {
   user: null,
-  token: null,
+  token: localStorage.getItem("authToken"),
   error: null,
 };
 
@@ -148,6 +148,7 @@ const authSlice = createSlice({
       .addCase(fetchUserDetails.pending, () => {})
       .addCase(fetchUserDetails.fulfilled, (state, action) => {
         state.user = action.payload;
+        console.log("user in slice after extract->", state.user);
       })
       .addCase(fetchUserDetails.rejected, (state, action) => {
         state.error = action.payload;

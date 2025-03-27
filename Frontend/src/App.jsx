@@ -11,37 +11,37 @@ import { getToken } from "./API/authentication";
 
 function App() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const storeToken = async () => {
-      let token = localStorage.getItem("authToken") || (await getToken());
+      let Token = localStorage.getItem("authToken") || (await getToken());
 
       if (
-        token &&
+        Token &&
         !["/auth/login", "/auth/signup"].includes(location.pathname)
       ) {
-        setAuthToken(token);
-        dispatch(setToken(token));
-        dispatch(fetchUserDetails());
+        setAuthToken(Token);
+        dispatch(setToken(Token));
+        // dispatch(fetchUserDetails());
       }
 
-      console.log("token->", token);
+      console.log("token->", Token);
+      console.log("user->", user);
     };
 
     storeToken();
-  }, [dispatch]);
 
-  useEffect(() => {
-    if (user) {
-      console.log("user->", user);
-    }
-  }, [user]);
-
-  useEffect(() => {
     dispatch(getSkills());
     dispatch(getCountries());
   }, [dispatch]);
+
+  // Fetch user details after token is set
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUserDetails());
+    }
+  }, [token, dispatch]);
 
   return (
     <div className="grid grid-rows-[60px,1fr] h-screen w-screen overflow-hidden">

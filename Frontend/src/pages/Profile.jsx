@@ -1,5 +1,19 @@
-import React, { useState } from "react";
-import { FaMapMarkerAlt, FaStar, FaTrophy, FaEnvelope, FaPhone, FaFacebook, FaLinkedin, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import {
+  FaMapMarkerAlt,
+  FaStar,
+  FaTrophy,
+  FaEnvelope,
+  FaPhone,
+  FaFacebook,
+  FaLinkedin,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
+import { useSelector } from "react-redux";
+import Loader from "../components/Loader";
+import { useParams } from "react-router-dom";
+import { getUserDetails } from "../API/user";
 
 const ExpandableSection = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,17 +33,43 @@ const ExpandableSection = ({ title, children }) => {
 };
 
 const Profile = () => {
+  // const user = useSelector((state) => state.auth.user);
+  const [userDetails, setUserDetails] = useState(null);
+  const id = useParams().id;
+
+  useEffect(() => {
+    async function getProfile() {
+      const responce = await getUserDetails(id);
+      console.log("profile got: ", responce);
+      setUserDetails(responce.data);
+    }
+    getProfile();
+  }, []);
+
+  if (!userDetails) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen p-6 bg-gray-100">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Left Section - Profile Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Header */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col lg:flex-row items-center lg:items-start gap-6 border border-purple-200">
-            <img src="https://via.placeholder.com/80" alt="Profile" className="w-20 h-20 rounded-full" />
+            <img
+              src={userDetails.profilePic}
+              alt="Profile"
+              className="w-20 h-20 rounded-full"
+            />
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-blue-700">Diana Ross</h2>
+              <h2 className="text-xl font-bold text-blue-700">
+                {userDetails.name || "User"}
+              </h2>
               <p className="text-gray-500">Professional Title</p>
               <p className="text-sm text-gray-400 flex items-center gap-1">
                 <FaMapMarkerAlt className="text-gray-400" /> New York
@@ -49,7 +89,8 @@ const Profile = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h3 className="font-bold">Overview</h3>
             <p className="text-gray-600">
-              Experienced professional with expertise in web development and e-commerce solutions.
+              Experienced professional with expertise in web development and
+              e-commerce solutions.
             </p>
           </div>
 
@@ -57,35 +98,56 @@ const Profile = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h3 className="text-lg font-semibold">Work history and feedback</h3>
             <div className="mt-4 space-y-4">
-              
               {/* E-commerce Website Feedback */}
               <div className="p-4 bg-gray-100 rounded-lg">
-                <h4 className="font-semibold">E-commerce Website <span className="text-gray-500 text-sm">- Mar 2021</span></h4>
+                <h4 className="font-semibold">
+                  E-commerce Website{" "}
+                  <span className="text-gray-500 text-sm">- Mar 2021</span>
+                </h4>
                 <p className="text-yellow-500 flex items-center gap-1">
                   <FaStar /> <FaStar /> <FaStar /> <FaStar /> <FaStar />
                 </p>
                 <p className="text-gray-600 mt-2">
-                  Developed a high-performance e-commerce platform with seamless checkout and responsive design.
+                  Developed a high-performance e-commerce platform with seamless
+                  checkout and responsive design.
                 </p>
                 <div className="flex gap-2 mt-2">
-                  <img src="https://via.placeholder.com/80" alt="Project" className="w-20 h-20 rounded-md" />
-                  <img src="https://via.placeholder.com/80" alt="Project" className="w-20 h-20 rounded-md" />
-                  <img src="https://via.placeholder.com/80" alt="Project" className="w-20 h-20 rounded-md" />
+                  <img
+                    src="https://via.placeholder.com/80"
+                    alt="Project"
+                    className="w-20 h-20 rounded-md"
+                  />
+                  <img
+                    src="https://via.placeholder.com/80"
+                    alt="Project"
+                    className="w-20 h-20 rounded-md"
+                  />
+                  <img
+                    src="https://via.placeholder.com/80"
+                    alt="Project"
+                    className="w-20 h-20 rounded-md"
+                  />
                 </div>
               </div>
 
               {/* Import-Export Website Feedback */}
               <div className="p-4 bg-gray-100 rounded-lg">
-                <h4 className="font-semibold">Import-Export Website <span className="text-gray-500 text-sm">- Feb 2021</span></h4>
+                <h4 className="font-semibold">
+                  Import-Export Website{" "}
+                  <span className="text-gray-500 text-sm">- Feb 2021</span>
+                </h4>
                 <p className="text-yellow-500 flex items-center gap-1">
                   <FaStar /> <FaStar /> <FaStar /> <FaStar /> <FaStar />
                 </p>
                 <p className="text-gray-600 mt-2">
-                  Designed and built a scalable platform for import-export businesses to manage logistics and transactions efficiently.
+                  Designed and built a scalable platform for import-export
+                  businesses to manage logistics and transactions efficiently.
                 </p>
               </div>
             </div>
-            <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Show all feedback</button>
+            <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+              Show all feedback
+            </button>
           </div>
         </div>
 
@@ -99,7 +161,9 @@ const Profile = () => {
                 <FaStar /> 4.8
               </p>
             </div>
-            <button className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg">Send Message</button>
+            <button className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
+              Send Message
+            </button>
             <div className="flex justify-center gap-4 mt-3 text-gray-600">
               <FaEnvelope className="cursor-pointer hover:text-blue-500" />
               <FaLinkedin className="cursor-pointer hover:text-blue-700" />
@@ -128,7 +192,9 @@ const Profile = () => {
             <ExpandableSection title="Publications">
               <p>Research paper on AI-powered Chatbots.</p>
             </ExpandableSection>
-            <button className="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg">See More</button>
+            <button className="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg">
+              See More
+            </button>
           </div>
         </div>
       </div>

@@ -32,14 +32,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 
-
 app.use("/api/auth", authRouter);
 app.use("/api/general", generalRouter);
-app.use(
-  "/api/user",
-  passport.authenticate("jwt", { session: false }),
-  userRouter
-);
+app.use("/api/user", userRouter);
 app.use("/api/projects", projectsRouter);
 
 // By default, Passport creates a session (for login-based authentication like username/password).
@@ -47,4 +42,3 @@ app.use("/api/projects", projectsRouter);
 // This ensures that Passport does not store authentication data in a session.
 
 app.listen(process.env.PORT);
-

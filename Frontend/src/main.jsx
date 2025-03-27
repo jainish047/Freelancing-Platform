@@ -98,27 +98,18 @@ const Router = createBrowserRouter([
         ],
       },
       {
-        path: "explore/freelancers",
-        element: <ExploreFreelancers />,
+        path: "explore",
+        children: [
+          {
+            path: "freelancers",
+            element: <ExploreFreelancers />,
+          },
+          {
+            path: "projects",
+            element: <ExploreProjects />,
+          },
+        ],
       },
-      {
-        path: "explore/projects",
-        element: <ExploreProjects />,
-      },
-      // {
-      //   path: "explore",
-      //   element: <Explore />,
-      //   children: [
-      //     {
-      //       path: "freelancers",
-      //       element: <ExploreFreelancers />,
-      //     },
-      //     {
-      //       path: "projects",
-      //       element: <ExploreProjects />,
-      //     },
-      //   ],
-      // },
       {
         path: "profile/:id",
         element: <Profile />,

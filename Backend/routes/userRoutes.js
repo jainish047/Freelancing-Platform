@@ -1,10 +1,25 @@
 import express from "express";
-import { selfDetails, updateProfile } from "../controllers/userController.js";
+import {
+  selfDetails,
+  updateProfile,
+  userDetails,
+} from "../controllers/userController.js";
+import passport from "passport";
 
-const router = express.Router()
+const router = express.Router();
 
-router.get("/self", selfDetails)
+router.get(
+  "/self",
+  passport.authenticate("jwt", { session: false }),
+  selfDetails
+);
 
-router.put("/self", updateProfile)
+router.put(
+  "/self",
+  passport.authenticate("jwt", { session: false }),
+  updateProfile
+);
+
+router.get("/:id", userDetails);
 
 export default router;
