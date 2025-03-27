@@ -44,10 +44,12 @@ function App() {
   }, [dispatch]);
 
   return (
-    <div className="border w-screen h-screen flex flex-col">
+    <div className="grid grid-rows-[60px,1fr] h-screen w-screen overflow-hidden">
       <Header />
-      <Outlet />
-      <Toaster />
+      <div className="h-full w-full overflow-y-auto overflow-x-hidden border">
+        <Outlet />
+      </div>
+      {/* <Toaster /> */}
     </div>
   );
 }

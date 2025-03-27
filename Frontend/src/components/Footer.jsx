@@ -2,8 +2,8 @@ import { Facebook, Twitter, Youtube, Instagram } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-10 mt-auto w-full">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+    <footer className="bg-gray-900 text-white py-10">
+      <div className="px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
         {/* Brand Section */}
         <div>
           <h3 className="text-xl font-semibold">P4 Freelancing</h3>
@@ -55,7 +55,7 @@ const Footer = () => {
       </div>
 
       {/* Footer Bottom */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-10 flex flex-col md:flex-row justify-between items-center text-gray-400">
+      <div className="mx-auto px-6 md:px-12 mt-10 flex flex-col md:flex-row justify-between items-center text-gray-400">
         <p>© 2025 P4 Freelancing. All rights reserved.</p>
 
         {/* Social Icons */}

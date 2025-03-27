@@ -63,7 +63,7 @@ const Router = createBrowserRouter([
         element: <Home />,
         children: [
           {
-            path: "dashboard",
+            path: "",
             element: <Dashboard />,
           },
           {
@@ -72,7 +72,6 @@ const Router = createBrowserRouter([
           },
           {
             path: "projects",
-            // element: <Projects />,
             children: [
               {
                 path: "",
@@ -89,7 +88,7 @@ const Router = createBrowserRouter([
             ]
           },
           {
-            path: "projectupdates",
+            path: "projectUpdates",
             element: <ProjectUpdates />,
           },
           {

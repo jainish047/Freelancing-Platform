@@ -31,44 +31,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 
-// now no need for manual varification bcz of passport
-// app.use((req, res, next) => {
-//   // Skip this middleware for routes like /login and /signup
-//   if (
-//     req.originalUrl.includes("/auth/login") ||
-//     req.originalUrl.includes("/auth/signup") ||
-//     req.originalUrl.includes("/auth/verifyEmail")
-//   ) {
-//     return next();
-//   }
-
-//   const authHeader = req.header("Authorization");
-//   if (!authHeader) {
-//     // next()
-//     return res.status(401).send("Access Denied");
-//   }
-
-//   const token = authHeader.startsWith("Bearer ")
-//     ? authHeader.slice(7, authHeader.length).trim()
-//     : authHeader;
-//   if (!token) {
-//     return res.status(401).send("Access Denied");
-//   }
-
-//   req.token = token;
-
-//   try {
-//     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-//     req.user = decoded; // Attach user info to the request.
-//     next();
-//   } catch (error) {
-//     if (error.name === "TokenExpiredError") {
-//       return res.status(401).json({ message: "Token expired" });
-//     } else {
-//       return res.status(401).json({ message: "Invalid token" });
-//     }
-//   }
-// });
 
 app.use("/api/auth", authRouter);
 app.use(
@@ -83,3 +45,4 @@ app.use("/api/projects", projectsRouter);
 // This ensures that Passport does not store authentication data in a session.
 
 app.listen(process.env.PORT);
+

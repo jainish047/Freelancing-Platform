@@ -119,4 +119,133 @@ async function filterProjects(req, res) {
   }
 }
 
-export { filterProjects };
+async function getProjectDetails(req, res, next) {
+  try {
+    const { projectId } = req.params;
+
+    const project = await prisma.project.findUnique({
+      where: { id: Number(projectId) },
+      include: {
+        user: true, // Include client details
+        bids: true, // Include bids details
+        skillsRequired: true, // Include skills required details
+      },
+    });
+
+    if (!project) {
+      return res.status(404).send({ message: "Project not found" });
+    }
+
+    return res.status(200).send({ project });
+  } catch (error) {
+    console.log("error in getProjectDetails->", error);
+    return res
+      .status(400)
+      .send({ message: "Error fetching project details in backend" });
+  }
+}
+
+async function bidOnProject(req, res, next) {
+  try {
+    const { projectId } = req.params;
+    const { userId } = req.user;
+    const { bidAmount } = req.body;
+
+    // Check if project exists
+    const project = await prisma.project.findUnique({
+      where: { id: Number(projectId) },
+    });
+
+    if (!project) {
+      return res.status(404).send({ message: "Project not found" });
+    }
+
+    // Check if bid amount is within the budget range
+    if (bidAmount < project.minBudget || bidAmount > project.maxBudget) {
+      return res
+        .status(400)
+        .send({ message: "Bid amount out of budget range" });
+    }
+
+    // Create a new bid
+    const bid = await prisma.bid.create({
+      data: {
+        amount: bidAmount,
+        projectId: Number(projectId),
+        userId: Number(userId),
+      },
+    });
+
+    return res.status(201).send({ message: "Bid placed successfully", bid });
+  } catch (error) {
+    console.log("error in bidOnProject->", error);
+    return res.status(400).send({ message: "Error placing bid on project" });
+  }
+}
+
+async function bookmarkProject(req, res, next) {
+  try {
+    const { projectId } = req.params;
+    const { userId } = req.user;
+
+    // Check if project exists
+    const project = await prisma.project.findUnique({
+      where: { id: Number(projectId) },
+    });
+
+    if (!project) {
+      return res.status(404).send({ message: "Project not found" });
+    }
+
+    // Add bookmark to the project
+    const bookmark = await prisma.bookmark.create({
+      data: {
+        projectId: Number(projectId),
+        userId: Number(userId),
+      },
+    });
+
+    return res.status(201).send({ message: "Project bookmarked successfully", bookmark });
+  } catch (error) {
+    console.log("error in bookmarkProject->", error);
+    return res.status(400).send({ message: "Error bookmarking project" });
+  }
+}
+
+async function unbookmarkProject(req, res, next) {
+  try {
+    const { projectId } = req.params;
+    const { userId } = req.user;
+
+    // Check if bookmark exists
+    const bookmark = await prisma.bookmark.findUnique({
+      where: {
+        projectId_userId: {
+          projectId: Number(projectId),
+          userId: Number(userId),
+        },
+      },
+    });
+
+    if (!bookmark) {
+      return res.status(404).send({ message: "Bookmark not found" });
+    }
+
+    // Remove bookmark from the project
+    await prisma.bookmark.delete({
+      where: {
+        projectId_userId: {
+          projectId: Number(projectId),
+          userId: Number(userId),
+        },
+      },
+    });
+
+    return res.status(200).send({ message: "Project unbookmarked successfully" });
+  } catch (error) {
+    console.log("error in unbookmarkProject->", error);
+    return res.status(400).send({ message: "Error unbookmarking project" });
+  }
+}
+
+export { filterProjects, getProjectDetails, bidOnProject, bookmarkProject, unbookmarkProject };

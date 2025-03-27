@@ -8,8 +8,8 @@ export default function Explore() {
       <Helmet>
         <title>Explore</title>
       </Helmet>
-      <div className="">
-        <header className="flex items-center justify-between py-3 px-6 border-b bg-black shadow-md">
+      <div className="overflow-y-auto overflow-x-hidden border h-full">
+        {/* <header className="flex items-center justify-between py-3 px-6 border-b bg-black shadow-md">
           <nav className="space-x-6 ">
             <Link
               to="freelancers"
@@ -32,7 +32,7 @@ export default function Explore() {
               Projects
             </Link>
           </nav>
-        </header>
+        </header> */}
         <Outlet />
       </div>
     </>

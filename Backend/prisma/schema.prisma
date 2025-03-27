@@ -36,6 +36,9 @@ model user {
   projects            project[] @relation("ClientProjects") // Projects posted by this user
   bids                bid[]     @relation("UserBids") // Bids placed by this user
   freelancingProjects project[] @relation("FreelancerProjects") // Projects user is working on
+  likes               like[] // Likes by this user
+  bookmarks           bookmark[] // Bookmarks by this user
+  lists               list[] // Lists created by this user
 }
 
 model project {
@@ -55,6 +58,9 @@ model project {
   bids           bid[]         @relation("ProjectBids") // All bids on this project
   assignedTo     String?       @unique // Ensure only one freelancer per project
   freelancer     user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
+  likes          like[] // Likes for this project
+  bookmarks      bookmark[] // Bookmarks for this project
+  listItems      listItem[] // List items for this project
 }
 
 model bid {
@@ -65,6 +71,48 @@ model bid {
   user      user     @relation("UserBids", fields: [userId], references: [id], onDelete: Cascade)
   amount    Float
   proposal  String
+  createdAt DateTime @default(now())
+}
+
+model like {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+
+  @@index([userId])
+  @@index([projectId])
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+
+  @@index([userId])
+  @@index([projectId])
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model list {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     listItem[]
+  createdAt DateTime @default(now())
+}
+
+model listItem {
+  id        String   @id @default(uuid())
+  listId    String
+  projectId String
+  list      list     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  project   project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 
@@ -85,7 +133,7 @@ enum ProjectStatus {
   CANCELED
 }
 
-model skills{
+model skills {
   id       Int   @id @default(autoincrement())
   name     String
 }
