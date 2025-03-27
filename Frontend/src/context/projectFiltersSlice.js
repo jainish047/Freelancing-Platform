@@ -14,17 +14,17 @@ const initialState = {
     languages: "",
     sortBy: "",
     page: 0,
-    totalPages: 10,
   },
+  totalPages: 0,
 };
 
 export const filterProjects = createAsyncThunk(
   "filter/projects",
   async (_, { getState, rejectWithValue }) => {
     try {
-      // const filters = getState().projectFilter;
-      const responce = await fetchProjects();
-      return responce.data.projects;
+      const projectFilters = getState().projectFilter;
+      const responce = await fetchProjects(projectFilters.filters);
+      return responce.data;
     } catch (err) {
       console.log("error in project slice->", err);
       return rejectWithValue({
@@ -53,7 +53,8 @@ export const projectFilterSlice = createSlice({
       })
       .addCase(filterProjects.fulfilled, (state, action) => {
         setLoadingState({ actionName: "projects", isLoading: false });
-        state.projects = action.payload;
+        state.projects = action.payload.projects;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(filterProjects.rejected, (state, action) => {
         setLoadingState({ actionName: "projects", isLoading: false });

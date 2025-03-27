@@ -12,8 +12,9 @@ async function filterProjects(req, res) {
       languages,
       sortBy,
       page = 1,
-      pageSize = 10,
     } = req.query;
+
+    console.log("req query->", req.query);
 
     const filters = {};
 
@@ -27,7 +28,12 @@ async function filterProjects(req, res) {
 
     // Filter by status
     if (status) {
-      filters.status = status;
+      filters.status = {
+        in: status
+          .split(",") // Split into an array
+          .map((s) => s.trim().toUpperCase()) // Trim spaces & convert to uppercase
+          .filter((s) => s !== ""),
+      };
     }
 
     // Filter by budget range
@@ -45,7 +51,7 @@ async function filterProjects(req, res) {
 
     // Filter by required skills
     if (skills?.length) {
-      filters.skillsRequired = { hasSome: skills };
+      filters.skillsRequired = { hasSome: skills.split(",") };
     }
 
     // Filter by project location (if applicable in your schema)
@@ -55,7 +61,7 @@ async function filterProjects(req, res) {
 
     // Filter by client country
     if (clientCountries?.length) {
-      filters.user = { country: { in: clientCountries } };
+      filters.user = { country: { in: clientCountries.split(",") } };
     }
 
     // Filter by language (assuming user has a "languages" field)
@@ -91,26 +97,39 @@ async function filterProjects(req, res) {
     }
 
     // Pagination
-    const skip = (page - 1) * pageSize;
-    const take = pageSize;
+    const skip = Number(page) * Number(process.env.PROJECTSPERPAGE);
+    const take = Number(process.env.PROJECTSPERPAGE);
 
-    // Fetch filtered projects
-    const projects = await prisma.project.findMany({
-      where: filters,
-      orderBy,
-      skip,
-      take,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-          }, // Include client details if needed
+    // Use prisma.$transaction() to fetch both total count and filtered projects in one query
+    const [totalProjects, projects] = await prisma.$transaction([
+      prisma.project.count({ where: filters }),
+      prisma.project.findMany({
+        where: filters,
+        orderBy,
+        skip,
+        take,
+        include: {
+          user: {
+            select: { id: true, name: true },
+          },
         },
-      },
-    });
-    console.log("filtered projects->", projects);
-    return res.status(200).send({ message: "filtered projects", projects });
+      }),
+    ]);
+    // Benefits of Using $transaction():
+    // Single database lookup: Runs both queries (count and fetch) in one request, improving efficiency.
+    // Consistency: Ensures both queries run with the same filter conditions.
+    // Performance boost: Reduces the number of database queries from 2 to 1, reducing latency.
+
+    console.log(`filtered ${totalProjects} projects->`);
+    return res
+      .status(200)
+      .send({
+        message: "filtered projects",
+        projects,
+        totalPages:
+          Number(totalProjects) / process.env.PROJECTSPERPAGE +
+          (Number(totalProjects) % process.env.PROJECTSPERPAGE !== 0 ? 1 : 0),
+      });
   } catch (error) {
     console.log("error in project filter->", error);
     return res
@@ -205,7 +224,9 @@ async function bookmarkProject(req, res, next) {
       },
     });
 
-    return res.status(201).send({ message: "Project bookmarked successfully", bookmark });
+    return res
+      .status(201)
+      .send({ message: "Project bookmarked successfully", bookmark });
   } catch (error) {
     console.log("error in bookmarkProject->", error);
     return res.status(400).send({ message: "Error bookmarking project" });
@@ -241,11 +262,19 @@ async function unbookmarkProject(req, res, next) {
       },
     });
 
-    return res.status(200).send({ message: "Project unbookmarked successfully" });
+    return res
+      .status(200)
+      .send({ message: "Project unbookmarked successfully" });
   } catch (error) {
     console.log("error in unbookmarkProject->", error);
     return res.status(400).send({ message: "Error unbookmarking project" });
   }
 }
 
-export { filterProjects, getProjectDetails, bidOnProject, bookmarkProject, unbookmarkProject };
+export {
+  filterProjects,
+  getProjectDetails,
+  bidOnProject,
+  bookmarkProject,
+  unbookmarkProject,
+};

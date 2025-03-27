@@ -26,6 +26,7 @@ model user {
   bio                 String?
   skills              String[]
   location            String?
+  country             String?
   active              Boolean   @default(true)
   dob                 DateTime?
   languages           String[] // Allows multiple languages

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function Project({ project }) {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const navigate = useNavigate();
+  const skills = useSelector((state) => state.general.skills);
 
   // Hardcoded project data
   // const project = {
@@ -87,7 +89,7 @@ export default function Project({ project }) {
                 key={index}
                 className="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-sm mr-2 mb-2"
               >
-                {skill}
+                {(skills.find((s) => s.id == skill) || {})?.name}
               </span>
             ))}
           </div>

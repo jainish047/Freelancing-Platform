@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { setLoadingState } from "./loadingSlice";
+import { fetchCountries, fetchSkills } from "../API/general";
 
 const initialState = {
   skills: [
@@ -74,14 +75,16 @@ const initialState = {
       name: "Brazil",
     },
   ],
-  projectsPerPage:10,
+  projectsPerPage: 10,
 };
 
 export const getSkills = createAsyncThunk(
   "fetch/skills",
   async (_, { rejectWithValue }) => {
     try {
-      return initialState.skills;
+      const resoponce = await fetchSkills();
+      console.log("skills->", resoponce.data.skills);
+      return resoponce.data.skills;
     } catch (err) {
       return rejectWithValue({
         message: err.message || "Skills fetching failed",
@@ -95,7 +98,9 @@ export const getCountries = createAsyncThunk(
   "fetch/countries",
   async (_, { rejectWithValue }) => {
     try {
-      return initialState.countries;
+      const resoponce = await fetchCountries();
+      console.log("countries->", resoponce.data.countries);
+      return resoponce.data.countries;
     } catch (err) {
       return rejectWithValue({
         message: err.message || "Countries fetching failed",

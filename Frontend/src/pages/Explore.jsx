@@ -8,7 +8,7 @@ export default function Explore() {
       <Helmet>
         <title>Explore</title>
       </Helmet>
-      <div className="overflow-y-auto overflow-x-hidden border h-full">
+      <div className="h-full overflow-y-hidden">
         {/* <header className="flex items-center justify-between py-3 px-6 border-b bg-black shadow-md">
           <nav className="space-x-6 ">
             <Link

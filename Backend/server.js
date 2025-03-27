@@ -11,6 +11,7 @@ import "./strategy/google.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import projectsRouter from "./routes/projectsRoutes.js";
+import generalRouter from "./routes/generalRoutes.js";
 
 import { EventEmitter } from "events";
 // Increase the max listeners to 20 (or any number you find appropriate)
@@ -33,6 +34,7 @@ app.use(passport.initialize());
 
 
 app.use("/api/auth", authRouter);
+app.use("/api/general", generalRouter);
 app.use(
   "/api/user",
   passport.authenticate("jwt", { session: false }),
