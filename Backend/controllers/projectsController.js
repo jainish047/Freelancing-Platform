@@ -11,7 +11,7 @@ async function filterProjects(req, res) {
       clientCountries,
       languages,
       sortBy,
-      page = 1,
+      page = 0,
     } = req.query;
 
     console.log("req query->", req.query);

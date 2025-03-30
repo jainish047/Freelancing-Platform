@@ -1,7 +1,7 @@
 import { Button } from "../components/ui/button";
-import { updateFilters } from "../context/projectFiltersSlice";
+// import { updateFilters } from "../context/projectFiltersSlice";
 
-export default function FilterHeading({title, prop, def, dispatch, projectFilters}) {
+export default function FilterHeading({title, prop, def, dispatch, updateFilters, filters}) {
   return (
     <div className="flex justify-between items-center">
       <p className="font-bold">{title}</p>
@@ -9,7 +9,7 @@ export default function FilterHeading({title, prop, def, dispatch, projectFilter
         variant="link"
         className="text-blue-600 bg-transparent border-none"
         onClick={() => {
-            dispatch(updateFilters({...projectFilters, [prop]: def}));
+            dispatch(updateFilters({...filters, [prop]: def}));
         }}
       >
         clear

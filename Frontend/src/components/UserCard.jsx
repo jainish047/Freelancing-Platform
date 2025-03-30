@@ -1,73 +1,94 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-// import { Text } from "@shadcn/ui";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function UserCard({
-  name,
-  username,
-  bio,
-  avatarUrl,
-  profileLink,
-}) {
+const UserCard = ({ user }) => {
+  const skills = useSelector((state) => state.general.skills);
+  const [showFullBio, setShowFullBio] = useState(false);
+  const BIO_TRUNCATE_LENGTH = 150;
+  const navigate = useNavigate();
+
+  const displayedBio =
+    showFullBio || user.bio?.length <= BIO_TRUNCATE_LENGTH
+      ? user.bio
+      : user.bio?.slice(0, BIO_TRUNCATE_LENGTH) + "...";
+
   return (
-    // <Card className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition-all duration-200">
-    //   {/* Avatar and User Info */}
-    //   <div className="flex items-center space-x-4">
-    //     <Avatar src={avatarUrl} alt={name} className="w-16 h-16 rounded-full" />
-    //     <div>
-    //       <Text as="h3" className="text-xl font-semibold">{name}</Text>
-    //       <Text className="text-sm text-gray-500">@{username}</Text>
-    //     </div>
-    //   </div>
-
-    //   {/* Bio Section */}
-    //   <Text className="mt-2 text-sm text-gray-600">{bio}</Text>
-
-    //   {/* Action Button */}
-    //   <Button
-    //     asChild
-    //     className="mt-4 w-full"
-    //   >
-    //     <a href={profileLink} target="_blank" rel="noopener noreferrer" className="text-center">View Profile</a>
-    //   </Button>
-    // </Card>
-    <Card className="max-w-sm p-4 shadow-lg rounded-lg">
-      {/* Card Header - Profile Picture and Name */}
-      <CardHeader className="flex items-center space-x-4">
-        <img
-          src={""}
-          alt={`${name}'s profile`}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-        <CardTitle className="text-xl font-semibold text-gray-900">
-          {name}
-        </CardTitle>
-      </CardHeader>
-
-      {/* Card Content - Bio */}
-      <CardContent>
-        <CardDescription className="text-sm text-gray-700">
-          {bio}
-        </CardDescription>
-      </CardContent>
-
-      {/* Card Footer - Follow Button */}
-      <CardFooter>
-        <button
-          //   onClick={onFollow}
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
-        >
-          Follow
-        </button>
-      </CardFooter>
-    </Card>
+    <div
+      className="border border-gray-300 rounded-lg p-4 flex mb-4 font-sans cursor-pointer hover:bg-gray-100"
+      onClick={() => {
+        navigate(`/profile/${user.id}`);
+      }}
+    >
+      <div className="mr-4">
+        {user.profilePic ? (
+          <img
+            src={user.profilePic}
+            alt="User Logo"
+            className="w-20 h-20 object-cover rounded"
+          />
+        ) : (
+          <div className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center">
+            <span className="text-gray-500">No Image</span>
+          </div>
+        )}
+      </div>
+      <div className="flex-1">
+        <h2 className="text-xl font-bold mb-1">{user.name || user.id}</h2>
+        {/* <p className="text-lg font-semibold text-blue-600">
+          ${user.rate} USD per hour
+        </p> */}
+        <p className="text-gray-600">{user.location}</p>
+        <div className="flex items-center gap-2 mt-2">
+          {/* <span className="font-bold">Rating: {user.rating || "-"}</span> */}
+          <span className="flex">
+            {[1, 2, 3, 4, 5].map((i) => {
+              return (
+                <Star
+                  key={i}
+                  className={`h-4 w-4 ${
+                    i <= user.rating ? "text-yellow-200" : "text-gray-300"
+                  }`}
+                  fill={i <= user.rating ? "yellow" : "none"}
+                  // stroke={i <= user.rating ? "blue" : "blue"}
+                />
+              );
+            })}
+          </span>
+          {/* <span className="text-gray-500">({user.reviews} reviews)</span> */}
+        </div>
+        <div className="mt-2">
+          <span>{displayedBio}</span>
+          {user.bio?.length > BIO_TRUNCATE_LENGTH && (
+            <span
+              onClick={(event) => {
+                event.stopPropagation(); // Prevents triggering the card's onClick event
+                setShowFullBio(!showFullBio);
+              }}
+              className="mt-1 text-blue-500 hover:underline cursor-pointer"
+            >
+              {showFullBio ? "Show Less" : "Show More"}
+            </span>
+          )}
+        </div>
+        <div className="mt-3">
+          {user.skills &&
+            user.skills.map(
+              (skill, index) =>
+                skill && (
+                  <span
+                    key={index}
+                    className="inline-block mr-2 mb-2 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700"
+                  >
+                    {(skills.find((s) => s.id == skill) || {})?.name}{" "}
+                  </span>
+                )
+            )}
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default UserCard;

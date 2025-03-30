@@ -11,3 +11,9 @@ export function fetchCountries(req, res) {
     res.json({ countries });
   });
 }
+
+export function fetchLanguages(req, res) {
+  prisma.languages.findMany().then((languages) => {
+    res.json({ languages });
+  });
+}

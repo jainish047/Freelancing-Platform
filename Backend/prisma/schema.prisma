@@ -30,6 +30,7 @@ model user {
   active              Boolean   @default(true)
   dob                 DateTime?
   languages           String[] // Allows multiple languages
+  rating              Float?    @default(0)
   experience          Json?
   dateJoined          DateTime? @default(now())
   emailVerified       Boolean   @default(false)
@@ -40,6 +41,7 @@ model user {
   likes               like[] // Likes by this user
   bookmarks           bookmark[] // Bookmarks by this user
   lists               list[] // Lists created by this user
+  listItems           listItem[] // List items associated with this user
 }
 
 model project {
@@ -100,21 +102,29 @@ model bookmark {
 }
 
 model list {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
   name      String
-  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ListType  // New Enum to specify what type of list it is
+  user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     listItem[]
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model listItem {
   id        String   @id @default(uuid())
   listId    String
-  projectId String
+  projectId String?  // Nullable, since it can also store userId
+  userId    String?  // Nullable, since it can also store projectId
   list      list     @relation(fields: [listId], references: [id], onDelete: Cascade)
-  project   project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      user?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+enum ListType {
+  PROJECT
+  USER
 }
 
 enum PaymentType {
@@ -140,6 +150,11 @@ model skills {
 }
 
 model Country {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model languages {
   id   Int    @id @default(autoincrement())
   name String @unique
 }

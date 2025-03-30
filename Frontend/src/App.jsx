@@ -6,7 +6,7 @@ import Header from "./components/Header";
 import { fetchUserDetails, setToken } from "./context/authSlice";
 import { setAuthToken } from "./API/axiosConfig";
 import { Toaster } from "./components/ui/toaster";
-import { getCountries, getSkills } from "./context/generalSlice";
+import { getCountries, getLanguages, getSkills } from "./context/generalSlice";
 import { getToken } from "./API/authentication";
 
 function App() {
@@ -34,6 +34,7 @@ function App() {
 
     dispatch(getSkills());
     dispatch(getCountries());
+    dispatch(getLanguages());
   }, [dispatch]);
 
   // Fetch user details after token is set

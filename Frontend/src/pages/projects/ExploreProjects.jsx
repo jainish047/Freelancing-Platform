@@ -239,7 +239,8 @@ export default function ExploreProjects() {
             prop="status"
             def=""
             dispatch={dispatch}
-            projectFilters={projectFilter}
+            updateFilters={updateFilters}
+            filters={projectFilter}
           />
           <div className="flex flex-col gap-1">
             {["Open", "In_progress", "Completed"].map((status) => {
@@ -264,7 +265,8 @@ export default function ExploreProjects() {
             prop="budget"
             def={""}
             dispatch={dispatch}
-            projectFilters={projectFilter}
+            updateFilters={updateFilters}
+            filters={projectFilter}
           />
           <div className="flex flex-col gap-1">
             <div className="flex flex-col">
@@ -343,7 +345,8 @@ export default function ExploreProjects() {
             prop="skills"
             def=""
             dispatch={dispatch}
-            projectFilters={projectFilter}
+            updateFilters={updateFilters}
+            filters={projectFilter}
           />
           <Command className="border rounded-lg shadow-sm">
             <CommandInput
@@ -399,7 +402,8 @@ export default function ExploreProjects() {
             prop="projectLocation"
             def=""
             dispatch={dispatch}
-            projectFilters={projectFilter}
+            updateFilters={updateFilters}
+            filters={projectFilter}
           />
           <div className="border shadow rounded-lg flex justify-between items-center p-1 px-2">
             <input
@@ -418,7 +422,8 @@ export default function ExploreProjects() {
             prop="clientCountries"
             def=""
             dispatch={dispatch}
-            projectFilters={projectFilter}
+            updateFilters={updateFilters}
+            filters={projectFilter}
           />
           <Command className="border rounded-lg shadow-sm">
             <CommandInput

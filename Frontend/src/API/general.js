@@ -18,7 +18,17 @@ const fetchCountries = async () =>{
     }
 }
 
+const fetchLanguages = async () =>{
+    try{
+        return api.get("/general/languages")
+        // in backend: body.filters.status
+    }catch(err){
+        console.log("error in projects fetch:->", err)
+    }
+}
+
 export {
     fetchSkills,
-    fetchCountries
+    fetchCountries,
+    fetchLanguages
 }

@@ -36,6 +36,7 @@ const Profile = () => {
   // const user = useSelector((state) => state.auth.user);
   const [userDetails, setUserDetails] = useState(null);
   const id = useParams().id;
+  const countries = useSelector((state) => state.general.countries);
 
   useEffect(() => {
     async function getProfile() {
@@ -72,12 +73,16 @@ const Profile = () => {
               </h2>
               <p className="text-gray-500">Professional Title</p>
               <p className="text-sm text-gray-400 flex items-center gap-1">
-                <FaMapMarkerAlt className="text-gray-400" /> New York
+                <FaMapMarkerAlt className="text-gray-400" /> {userDetails.location || "Location"}
+              </p>
+              <p className="text-gray-400 flex items-center gap-1">
+                {/* {userDetails.country} */}
+              {userDetails.country && (countries.find(country => country.id == userDetails.country)?.name)}
               </p>
             </div>
             <div className="flex flex-col items-center">
               <p className="text-yellow-500 text-xl flex items-center gap-1">
-                <FaStar className="text-yellow-500" /> 4.8
+                <FaStar className="text-yellow-500" /> {userDetails.rating || "-"}
               </p>
               <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm flex items-center gap-1">
                 <FaTrophy className="text-green-600" /> Top Rated
@@ -88,9 +93,8 @@ const Profile = () => {
           {/* Overview Section */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h3 className="font-bold">Overview</h3>
-            <p className="text-gray-600">
-              Experienced professional with expertise in web development and
-              e-commerce solutions.
+            <p className="text-gray-600 text-justify mt-4">
+              {userDetails.bio || "No bio available."}
             </p>
           </div>
 
