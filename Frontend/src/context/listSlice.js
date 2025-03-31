@@ -4,17 +4,18 @@ import { setLoadingState } from "./loadingSlice";
 
 const initialState = {
   lists: [],
-  selectedList: null,
-  items: []
+  selectedList: {id:"bookmark", name:"Bookmark", type:"PROJECT"},
+  items: [],
+  message:""
 };
 
 export const getLists = createAsyncThunk(
   "lists/getLists",
   async (_, { rejectWithValue }) => {
     try {
-      const responce = await fetchLists();
-      console.log("lists->", responce.data.lists);
-      return responce.data.lists;
+      const response = await fetchLists();
+      console.log("lists->", response.data.lists);
+      return response.data.lists;
     } catch (err) {
       return rejectWithValue({
         message: err.message || "lists fetching failed",
@@ -26,11 +27,11 @@ export const getLists = createAsyncThunk(
 
 export const getItems = createAsyncThunk(
     "lists/getItems",
-    async ({listId}, { rejectWithValue }) => {
+    async (_, { getState, rejectWithValue }) => {
       try {
-        const responce = await fetchItems(listId);
-        console.log("items->", responce.data.items);
-        return responce.data.items;
+        const response = await fetchItems(getState().lists.selectedList?.id || null);
+        console.log("items->", response.data);
+        return response.data;
       } catch (err) {
         return rejectWithValue({
           message: err.message || "items fetching failed",
@@ -42,11 +43,11 @@ export const getItems = createAsyncThunk(
 
 export const createList = createAsyncThunk(
   "lists/createList",
-  async ({ name, type }, { rejectWithValue }) => {
+  async ({ newListName, type }, { rejectWithValue }) => {
     try {
-      const responce = await createNewList(name, type);
-      console.log("skills->", responce.data.skills);
-      return responce.data.lists;
+      const response = await createNewList(newListName, type);
+      console.log("lists->", response.data.lists);
+      return response.data;
     } catch (err) {
       return rejectWithValue({
         message: err.message || "list create failed",
@@ -56,28 +57,28 @@ export const createList = createAsyncThunk(
   }
 );
 
-export const addItemToList = createAsyncThunk(
-  "lists/addToList",
-  async ({ listId, type, entityId }, { rejectWithValue }) => {
-    try {
-      const responce = await addToList(listId, type, entityId);
-      console.log("items->", responce.data.items);
-      return responce.data.items;
-    } catch (err) {
-      return rejectWithValue({
-        message: err.message || "item add failed",
-        status: err.status || 500,
-      });
-    }
-  }
-);
+// export const addItemToList = createAsyncThunk(
+//   "lists/addToList",
+//   async ({ listId, type, entityId }, { rejectWithValue }) => {
+//     try {
+//       const response = await addToList(listId, type, entityId);
+//       console.log("items->", response.data.items);
+//       return response.data.items;
+//     } catch (err) {
+//       return rejectWithValue({
+//         message: err.message || "item add failed",
+//         status: err.status || 500,
+//       });
+//     }
+//   }
+// );
 
 const listsSlice = createSlice({
   name: "lists",
   initialState,
   reducers: {
     setSelectedList:(state, action)=>{
-        state.selectedList = action.payload || "like"
+        state.selectedList = action.payload || "follow"
     }
   },
   extraReducers: (builder) => {
@@ -88,44 +89,51 @@ const listsSlice = createSlice({
       .addCase(getLists.fulfilled, (state, action) => {
         setLoadingState({ actionName: "lists", isLoading: false });
         state.lists = action.payload;
+        state.message = action.payload.message;
       })
       .addCase(getLists.rejected, (state, action) => {
         setLoadingState({ actionName: "lists", isLoading: false });
-        console.error("Skills fetch failed:", action.payload);
+        console.error("lists fetch failed:", action.payload);
+        state.message = action.payload.message;
       })
       .addCase(getItems.pending, (state) => {
         setLoadingState({ actionName: "listItems", isLoading: true });
       })
       .addCase(getItems.fulfilled, (state, action) => {
         setLoadingState({ actionName: "listItems", isLoading: false });
-        state.items = action.payload;
+        state.items = action.payload.items || [];
+        state.message = action.payload.message;
       })
       .addCase(getItems.rejected, (state, action) => {
         setLoadingState({ actionName: "listItems", isLoading: false });
-        console.error("Skills fetch failed:", action.payload);
+        console.error("list items fetch failed:", action.payload);
+        state.message = action.payload.message;
       })
       .addCase(createList.pending, (state) => {
         setLoadingState({ actionName: "newList", isLoading: true });
       })
       .addCase(createList.fulfilled, (state, action) => {
         setLoadingState({ actionName: "newList", isLoading: false });
-        state.lists = action.payload;
+        state.lists = action.payload.lists;
+        console.log("lists in reducer: ", state.lists)
+        state.message = action.payload.message;
       })
       .addCase(createList.rejected, (state, action) => {
         setLoadingState({ actionName: "newList", isLoading: false });
-        console.error("Skills fetch failed:", action.payload);
-      })
-      .addCase(addItemToList.pending, (state) => {
-        setLoadingState({ actionName: "addToList", isLoading: true });
-      })
-      .addCase(addItemToList.fulfilled, (state, action) => {
-        setLoadingState({ actionName: "addToList", isLoading: false });
-        state.items = action.payload;
-      })
-      .addCase(addItemToList.rejected, (state, action) => {
-        setLoadingState({ actionName: "addToList", isLoading: false });
-        console.error("Skills fetch failed:", action.payload);
+        console.error("list create failed:", action.payload);
+        state.message = action.payload.message;
       });
+      // .addCase(addItemToList.pending, (state) => {
+      //   setLoadingState({ actionName: "addToList", isLoading: true });
+      // })
+      // .addCase(addItemToList.fulfilled, (state, action) => {
+      //   setLoadingState({ actionName: "addToList", isLoading: false });
+      //   state.items = action.payload;
+      // })
+      // .addCase(addItemToList.rejected, (state, action) => {
+      //   setLoadingState({ actionName: "addToList", isLoading: false });
+      //   console.error("Skills fetch failed:", action.payload);
+      // });
   },
 });
 

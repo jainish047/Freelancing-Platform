@@ -2,68 +2,50 @@ import { api } from "./axiosConfig";
 
 // basic details
 export const fetchLists = async (name) => {
-  return await api
-    .get(`/list`)
-    .then((responce) => {
-      return responce;
-    })
-    .catch((error) => {
-      throw error;
-    });
+  try {
+    return api.get(`/lists`);
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const fetchItems = async (listId) => {
-  return await api
-    .get(`/list/${listId}`)
-    .then((responce) => {
-      return responce;
-    })
-    .catch((error) => {
-      throw error;
-    });
+  try {
+    return api.get(`/lists/${listId}`);
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const createNewList = async (name, type) => {
-  return await api
-    .post(`/list/create`, { name, type })
-    .then((responce) => {
-      return responce;
-    })
-    .catch((error) => {
-      throw error;
-    });
+  try {
+    console.log("sending post req to create list ", name, "of type ", type)
+    return api.post(`/lists/create`, { name, type });
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const addToList = async (listId, type, entityId) => {
-  return await api
-    .post(`/list/add`, { listId, type, entityId })
-    .then((responce) => {
-      return responce;
-    })
-    .catch((error) => {
-      throw error;
-    });
+  try {
+    return api.post(`/lists/add`, { listId, type, entityId });
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const removeItemFromList = async (listId, entityId) => {
-    return await api
-      .put(`/list/${listId}`)
-      .then((responce) => {
-        return responce;
-      })
-      .catch((error) => {
-        throw error;
-      });
-  };
-  
+  try {
+    return api.delete(`/lists/${listId}/${entityId}`);
+  } catch (err) {
+    throw err;
+  }
+};
 
 export const deleteList = async (listId) => {
-  return await api
-    .delete(`/list/${listId}`)
-    .then((responce) => {
-      return responce;
-    })
-    .catch((error) => {
-      throw error;
-    });
+  try {
+    return api.delete(`/lists/${listId}`);
+  } catch (err) {
+    throw err;
+  }
 };

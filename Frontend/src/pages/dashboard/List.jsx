@@ -14,31 +14,36 @@ import {
   DialogTrigger,
 } from "../../components/ui/dialog";
 import { useDispatch, useSelector } from "react-redux";
-import { getItems, getLists, setSelectedList } from "../../context/listSlice";
+import { createList, getItems, getLists, setSelectedList } from "../../context/listSlice";
 import Project from "../../components/Project";
+import {useToast} from "../../hooks/use-toast"
+import UserCard from "../../components/UserCard";
 
-export default function List() {
+export default function ListPage() {
   const user = useSelector((state) => state.auth.user);
-  const { lists, selectedList, items } = useSelector((state) => state.lists);
+  const { lists, selectedList, items, message } = useSelector((state) => state.lists);
   const [newListName, setNewListName] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState("USER");
+  const { toast } = useToast();
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    async function _getLists() {
-      dispatch(getLists());
-    }
-    _getLists();
-    dispatch(setSelectedList());
-  }, [dispatch, user]);
+  // useEffect(() => {
+  //   async function _getLists() {
+  //     dispatch(getLists());
+  //   }
+  //   _getLists();
+  //   dispatch(setSelectedList({id:"bookmark", name:"bookmark"}));
+  // }, [dispatch, user]);
 
   useEffect(() => {
+    console.log("lists in list.jsz", lists)
+    console.log("try:->", lists[1]?.type=="PROJECT")
     async function _getItems() {
       dispatch(getItems());
     }
     _getItems();
-  }, [dispatch, selectedList]);
+  }, [dispatch, selectedList, lists]);
 
   if (!user) return <div className="w-full h-full flex justify-center items-center">please login first</div>;
 
@@ -85,8 +90,8 @@ export default function List() {
                         onChange={(event) => setType(event.target.value)}
                         className="bg-white border p-1 w-28"
                       >
-                        <option value="freelancer">Freelancer</option>
-                        <option value="project">Project</option>
+                        <option value="USER">Freelancer</option>
+                        <option value="PROJECT">Project</option>
                       </select>
                     </div>
                   </div>
@@ -96,14 +101,10 @@ export default function List() {
                         className="p-2 bg-blue-600 text-white rounded"
                         onClick={() => {
                           console.log(newListName, type);
-                          const responce = createNewList(newListName, type);
-                          console.log(responce);
-                          if (responce.ok) {
-                            setNewListName("");
-                            setType("");
-                          } else {
-                            console.error("error in creating new list");
-                          }
+                          dispatch(createList({newListName, type}))
+                          toast({
+                            title:message
+                          })
                         }}
                       >
                         Create
@@ -121,7 +122,7 @@ export default function List() {
                   className="hover:border-0 border rounded w-full p-0 text-left font-normal flex items-center"
                   onClick={() =>
                     dispatch(
-                      setSelectedList({ id: "bookmark", name: "bookmark" })
+                      setSelectedList({ id: "bookmark", name: "Bookmark", type:"PROJECT" })
                     )
                   }
                 >
@@ -129,9 +130,10 @@ export default function List() {
                   <span className="ml-2">Bookmark</span>
                 </button>
                 {lists
-                  .filter((list) => list.type == "USER")
+                  .filter((list) => list.type == "PROJECT")
                   .map((list) => {
-                    <button
+                    // console.log("mking btn for list:", list)
+                     return <button
                       className="hover:border-0 border rounded w-full p-0 text-left font-normal flex items-center"
                       onClick={() => dispatch(setSelectedList(list))}
                     >
@@ -147,34 +149,53 @@ export default function List() {
                 <button
                   className="hover:border-0 border rounded w-full p-0 text-left font-normal flex items-center"
                   onClick={() =>
-                    dispatch(setSelectedList({ id: "like", name: "like" }))
+                    dispatch(setSelectedList({ id: "follow", name: "Following", type:"USER" }))
                   }
                 >
                   <Heart size={20} />
-                  <span className="ml-2">Like</span>
+                  <span className="ml-2">Follwing</span>
+                </button>
+                <button
+                  className="hover:border-0 border rounded w-full p-0 text-left font-normal flex items-center"
+                  onClick={() =>
+                    dispatch(setSelectedList({ id: "followers", name: "Followers", type:"USER" }))
+                  }
+                >
+                  <Heart size={20} />
+                  <span className="ml-2">Followers</span>
                 </button>
                 {lists
-                  .filter((list) => list.type == "PROJECT")
+                  .filter((list) => list.type == "USER")
                   .map((list) => {
-                    <button
+                    // console.log("mking btn for list:", list)
+                    return <button
                       className="hover:border-0 border rounded w-full p-0 text-left font-normal flex items-center"
                       onClick={() => dispatch(setSelectedList(list))}
                     >
-                      <List size={20} />
+                      <ListIcon size={20} />
                       <span className="ml-2">{list.name}</span>
                     </button>;
                   })}
               </div>
             </div>
           </div>
-          <div className="col-span-3 border rounded shadow p-4">
-            {selectedList.type == "PROJECT"
-              ? items.map((item) => {
-                  return <Project project={item} />;
+          <div className="col-span-3 border rounded shadow p-4 h-full overflow-y-auto">
+            <header>
+              <p className="font-semibold text-xl">{selectedList.name}</p>
+            </header>
+            {
+              items.length>0 ? selectedList.type == "PROJECT"
+              ? items?.map((item) => {
+                  return <Project project={item.project} />;
                 })
-              : items.map((item) => {
-                  return <UserCard user={item} />;
-                })}
+              : items?.map((item) => {
+                  return <UserCard user={item.following || item.follower} />;
+                }):
+                <div className="h-full w-full flex items-center justify-center">
+                  <p>Empty List</p>
+                </div>
+            }
+            {}
           </div>
         </div>
       </div>

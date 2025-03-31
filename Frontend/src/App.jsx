@@ -8,6 +8,7 @@ import { setAuthToken } from "./API/axiosConfig";
 import { Toaster } from "./components/ui/toaster";
 import { getCountries, getLanguages, getSkills } from "./context/generalSlice";
 import { getToken } from "./API/authentication";
+import { getLists } from "./context/listSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ function App() {
   useEffect(() => {
     if (token) {
       dispatch(fetchUserDetails());
+      dispatch(getLists())
     }
   }, [token, dispatch]);
 
@@ -50,7 +52,7 @@ function App() {
       <div className="h-full w-full overflow-y-auto overflow-x-hidden border">
         <Outlet />
       </div>
-      {/* <Toaster /> */}
+      <Toaster />
     </div>
   );
 }

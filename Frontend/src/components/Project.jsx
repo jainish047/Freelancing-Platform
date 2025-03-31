@@ -18,6 +18,24 @@ export default function Project({ project }) {
   //   totalBids: 12,
   // };
 
+  // async function handleBookmarkClick() {
+  //   try {
+  //     if (!user) throw new Error("Login Required");
+  //     const response = await addToList("bookmark", "PROJECT", id);
+  //     setProject(response.data.project);
+  //     toast({
+  //       title: response.data.message,
+  //     });
+  //   } catch (err) {
+  //     console.error("error in adding to bookmark: ", err);
+  //     console.log("message:->", err.message || err.response?.data.message);
+  //     toast({
+  //       variant: "destructive",
+  //       title: err.message || err.response.data.message,
+  //     });
+  //   }
+  // }
+
   const toggleDescription = (event) => {
     event.stopPropagation(); // Prevents triggering the card's onClick event
     setShowFullDescription(!showFullDescription);
@@ -96,11 +114,12 @@ export default function Project({ project }) {
         </div>
 
         {/* Save/Bookmark Button */}
-        <button
+        {/* <button
           className="flex items-center text-blue-500 hover:text-blue-600 focus:outline-none focus:ring-0 p-0"
           onClick={(event) => {
             event.stopPropagation();
             // add to bookmark list
+            handleBookmarkClick();
           }}
         >
           <svg
@@ -118,7 +137,7 @@ export default function Project({ project }) {
             ></path>
           </svg>
           Save Project
-        </button>
+        </button> */}
       </div>
     </div>
   );

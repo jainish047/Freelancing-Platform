@@ -36,28 +36,46 @@ async function updateProfile(res, req) {
     return res.status(500).send({ message: "Error updating profile", error });
   }
 }
-
 export async function userDetails(req, res) {
   try {
+    console.log("fetching user in user details")
     const userId = req.params.id;
+    const currentUserId = req.user?.id ; // Logged-in user ID
+
+    console.log("userId:", userId)
+    console.log("currentUserId:", currentUserId)
 
     if (!userId)
       return res.status(400).send({ message: "User id is required" });
 
-    console.log("finding user with id:", userId)
+    console.log("finding user with id:", userId);
 
     const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { id: userId },
     });
-
-    console.log("found user:->", user)
 
     if (!user) return res.status(404).send({ message: "User not found" });
 
-    return res.status(200).send(user);
+    // Check if the current user is following the requested user
+    const followRecord = currentUserId
+      ? await prisma.follow.findFirst({
+          where: {
+            followerId: currentUserId,
+            followingId: userId,
+          },
+        })
+      : false;
+
+    // Set isFollowing to true if a follow record exists, otherwise false.
+    const isFollowing = !!followRecord;
+
+    console.log("found profile:->", user)
+    console.log("isFollowing:->", isFollowing)
+
+    // Return the user details along with the isFollowing property.
+    return res.status(200).send({ ...user, isFollowing });
   } catch (error) {
+    console.log("error fetching user details:", error)
     return res
       .status(500)
       .send({ message: "Error fetching user details", error });

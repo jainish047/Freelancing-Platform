@@ -14,56 +14,60 @@ datasource db {
 }
 
 model user {
-  id                  String    @id @default(uuid())
+  id                  String     @id @default(uuid())
   name                String?
   profilePic          String?
-  email               String    @unique
-  role                UserRole // Updated to use enum
-  password            String? // Made optional
-  provider            String    @default("local") // "local", "google", etc.
-  googleId            String? // Optional: store Google’s unique ID
+  email               String     @unique
+  role                UserRole
+  password            String?
+  provider            String     @default("local")
+  googleId            String?
   phoneNumber         String?
   bio                 String?
   skills              String[]
   location            String?
   country             String?
-  active              Boolean   @default(true)
+  active              Boolean    @default(true)
   dob                 DateTime?
-  languages           String[] // Allows multiple languages
-  rating              Float?    @default(0)
+  languages           String[]
+  rating              Float?     @default(0)
   experience          Json?
-  dateJoined          DateTime? @default(now())
-  emailVerified       Boolean   @default(false)
-  phoneNumberVerified Boolean   @default(false)
-  projects            project[] @relation("ClientProjects") // Projects posted by this user
-  bids                bid[]     @relation("UserBids") // Bids placed by this user
-  freelancingProjects project[] @relation("FreelancerProjects") // Projects user is working on
-  likes               like[] // Likes by this user
-  bookmarks           bookmark[] // Bookmarks by this user
-  lists               list[] // Lists created by this user
-  listItems           listItem[] // List items associated with this user
+  dateJoined          DateTime?  @default(now())
+  emailVerified       Boolean    @default(false)
+  phoneNumberVerified Boolean    @default(false)
+  projects            project[]  @relation("ClientProjects")
+  bids                bid[]      @relation("UserBids")
+  freelancingProjects project[]  @relation("FreelancerProjects")
+  bookmarks           bookmark[]
+  lists               list[]
+  listItems           listItem[]
+
+  // Add these fields to resolve the relation error:
+  following follow[] @relation("FollowerRelation")
+  followers follow[] @relation("FollowingRelation")
 }
 
 model project {
-  id             String        @id @default(uuid())
-  userId         String
-  user           user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
-  title          String
-  description    String
-  minBudget      Int
-  maxBudget      Int
-  status         ProjectStatus @default(OPEN) // Tracks project progress
-  createdAt      DateTime      @default(now())
-  dueDate        DateTime?
-  documents      String[] // Array of document URLs
-  skillsRequired String[] // Example: ["React", "Node.js"]
-  paymentMethod  PaymentType?
-  bids           bid[]         @relation("ProjectBids") // All bids on this project
-  assignedTo     String?       @unique // Ensure only one freelancer per project
-  freelancer     user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
-  likes          like[] // Likes for this project
-  bookmarks      bookmark[] // Bookmarks for this project
-  listItems      listItem[] // List items for this project
+  id               String        @id @default(uuid())
+  userId           String
+  user             user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
+  title            String
+  description      String
+  minBudget        Int
+  maxBudget        Int
+  status           ProjectStatus @default(OPEN) // Tracks project progress
+  createdAt        DateTime      @default(now())
+  dueDate          DateTime?
+  documents        String[] // Array of document URLs
+  skillsRequired   String[] // Example: ["React", "Node.js"]
+  paymentMethod    PaymentType?
+  noOfBids         Int?
+  averageBidBudget Int?
+  bids             bid[]         @relation("ProjectBids") // All bids on this project
+  assignedTo       String?       @unique // Ensure only one freelancer per project
+  freelancer       user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
+  bookmarks        bookmark[] // Bookmarks for this project
+  listItems        listItem[] // List items for this project
 }
 
 model bid {
@@ -77,49 +81,60 @@ model bid {
   createdAt DateTime @default(now())
 }
 
-model like {
-  id        String   @id @default(uuid())
-  userId    String
-  projectId String
+model follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
 
-  @@index([userId])
-  @@index([projectId])
-  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project   project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  follower  user @relation(name: "FollowerRelation", fields: [followerId], references: [id], onDelete: Cascade)
+  following user @relation(name: "FollowingRelation", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model bookmark {
   id        String   @id @default(uuid())
   userId    String
   projectId String
-
-  @@index([userId])
-  @@index([projectId])
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   project   project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@unique([userId, projectId]) // Prevent duplicate bookmarks
+  @@index([userId])
+  @@index([projectId])
 }
 
 model list {
-  id        String    @id @default(uuid())
+  id        String     @id @default(uuid())
   userId    String
   name      String
-  type      ListType  // New Enum to specify what type of list it is
-  user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ListType // New Enum to specify what type of list it is
+  user      user       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     listItem[]
-  createdAt DateTime  @default(now())
+  createdAt DateTime   @default(now())
+
+  @@unique([userId, name]) // A user cannot have two lists with the same name
+  @@index([userId]) // Faster queries when fetching lists by user
 }
 
 model listItem {
   id        String   @id @default(uuid())
   listId    String
-  projectId String?  // Nullable, since it can also store userId
-  userId    String?  // Nullable, since it can also store projectId
+  projectId String? // Nullable, since it can also store userId
+  userId    String? // Nullable, since it can also store projectId
   list      list     @relation(fields: [listId], references: [id], onDelete: Cascade)
   project   project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      user?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@unique([listId, projectId, userId]) // Prevent duplicate items in the same list
+  @@index([listId]) // Optimize lookups by list
+  @@index([projectId]) // Optimize project-related queries
+  @@index([userId]) // Optimize user-related queries
 }
 
 enum ListType {
@@ -145,8 +160,8 @@ enum ProjectStatus {
 }
 
 model skills {
-  id       Int   @id @default(autoincrement())
-  name     String
+  id   Int    @id @default(autoincrement())
+  name String
 }
 
 model Country {

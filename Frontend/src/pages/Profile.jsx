@@ -9,11 +9,15 @@ import {
   FaLinkedin,
   FaChevronDown,
   FaChevronUp,
+  FaHeart,
+  FaRegHeart,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import { useParams } from "react-router-dom";
 import { getUserDetails } from "../API/user";
+import { addToList, removeItemFromList } from "../API/list";
+import { useToast } from "../hooks/use-toast";
 
 const ExpandableSection = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,19 +37,55 @@ const ExpandableSection = ({ title, children }) => {
 };
 
 const Profile = () => {
-  // const user = useSelector((state) => state.auth.user);
+  const { toast } = useToast();
+
+  const user = useSelector((state) => state.auth.user);
   const [userDetails, setUserDetails] = useState(null);
   const id = useParams().id;
   const countries = useSelector((state) => state.general.countries);
 
   useEffect(() => {
     async function getProfile() {
-      const responce = await getUserDetails(id);
-      console.log("profile got: ", responce);
-      setUserDetails(responce.data);
+      try {
+        const response = await getUserDetails(id);
+        console.log("profile got: ", response);
+        setUserDetails(response.data);
+      } catch (err) {
+        console.log("error fetching user :", id, "in frontend ");
+        console.log("error->", err);
+        setUserDetails({ id: "" });
+        toast({
+          variant: "destructive",
+          title: err.response.data.message,
+        });
+      }
     }
     getProfile();
-  }, []);
+  }, [id]);
+
+  async function handleFollowClick() {
+    try {
+      if (!user) throw new Error("Login Required");
+      let response;
+      if (!userDetails.isFollowing) {
+        response = await addToList("follow", "USER", id);
+        setUserDetails({ ...userDetails, isFollowing: true });
+      } else {
+        response = await removeItemFromList("follow", id);
+        setUserDetails({ ...userDetails, isFollowing: false });
+      }
+      toast({
+        title: response.data.message,
+      });
+    } catch (err) {
+      console.error("error in adding to like: ", err);
+      console.log("message:->", err.message || err.response?.data.message);
+      toast({
+        variant: "destructive",
+        title: err.message || err.response.data.message,
+      });
+    }
+  }
 
   if (!userDetails) {
     return (
@@ -53,6 +93,8 @@ const Profile = () => {
         <Loader />
       </div>
     );
+  } else if (userDetails.id === "") {
+    return <div>{"No such user found"}</div>;
   }
 
   return (
@@ -73,22 +115,47 @@ const Profile = () => {
               </h2>
               <p className="text-gray-500">Professional Title</p>
               <p className="text-sm text-gray-400 flex items-center gap-1">
-                <FaMapMarkerAlt className="text-gray-400" /> {userDetails.location || "Location"}
+                <FaMapMarkerAlt className="text-gray-400" />{" "}
+                {userDetails.location || "Location"}
               </p>
               <p className="text-gray-400 flex items-center gap-1">
                 {/* {userDetails.country} */}
-              {userDetails.country && (countries.find(country => country.id == userDetails.country)?.name)}
+                {userDetails.country &&
+                  countries.find((country) => country.id == userDetails.country)
+                    ?.name}
               </p>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center p-2 gap-4">
               <p className="text-yellow-500 text-xl flex items-center gap-1">
-                <FaStar className="text-yellow-500" /> {userDetails.rating || "-"}
+                <FaStar className="text-yellow-500" />{" "}
+                {userDetails.rating || "-"}
               </p>
               <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm flex items-center gap-1">
                 <FaTrophy className="text-green-600" /> Top Rated
               </span>
+              {!(user && user.id == id) &&
+                (userDetails.isFollowing ? (
+                  <button
+                    className="p-0 hover:border-none border border-1 rounded-circle bg-danger"
+                    onClick={handleFollowClick}
+                  >
+                    <p className="text-red-600 border rounded-full p-3 py-2 bg-red-200">Unfollow</p>
+                    </button>
+                ) : (
+                  <button
+                    className="p-0 hover:border-none border border-1 rounded-circle bg-success"
+                    onClick={handleFollowClick}
+                  >
+                    <p className="text-green-600 border rounded-full p-3 py-2 bg-green-200">Follow</p>
+                  </button>
+                ))}
             </div>
           </div>
+
+          {/* 
+          user && user.id==id  -> nothing
+          !user || !user.id==id -> show
+          */}
 
           {/* Overview Section */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -161,9 +228,7 @@ const Profile = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h4 className="font-semibold text-center">Message</h4>
             <div className="text-center my-2">
-              <p className="text-yellow-500 text-xl flex items-center justify-center gap-1">
-                <FaStar /> 4.8
-              </p>
+              Email: {userDetails.email}
             </div>
             <button className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
               Send Message

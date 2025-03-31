@@ -138,16 +138,27 @@ async function filterProjects(req, res) {
   }
 }
 
-async function getProjectDetails(req, res, next) {
+export async function getProjectDetails(req, res) {
   try {
-    const { projectId } = req.params;
+    // Extract projectId from the request parameters and current user's id (if available)
+    const projectId = req.params.projectId;
+    const currentUserId = req.user?.id;
+    
+    console.log("fetching project with id:", projectId);
+    console.log("currentUserId:", currentUserId);
 
+    // Validate the existence of projectId
+    if (!projectId) {
+      return res.status(400).send({ message: "Project id is required" });
+    }
+
+    // Retrieve project details with associated user, bids, and freelancer information
     const project = await prisma.project.findUnique({
-      where: { id: Number(projectId) },
+      where: { id: projectId },
       include: {
-        user: true, // Include client details
-        bids: true, // Include bids details
-        skillsRequired: true, // Include skills required details
+        user: true,       // project owner info
+        bids: true,       // all bids on this project
+        freelancer: true, // assigned freelancer info
       },
     });
 
@@ -155,14 +166,32 @@ async function getProjectDetails(req, res, next) {
       return res.status(404).send({ message: "Project not found" });
     }
 
-    return res.status(200).send({ project });
+    // Check if the current user has bookmarked this project (similar to the follow check in userDetails)
+    const bookmarkRecord = currentUserId
+      ? await prisma.bookmark.findFirst({
+          where: {
+            userId: currentUserId,
+            projectId: projectId,
+          },
+        })
+      : null;
+
+    // Convert the bookmark record to a boolean flag
+    const isBookmarked = !!bookmarkRecord;
+
+    console.log("found project:", project);
+    console.log("isBookmarked:", isBookmarked);
+
+    // Return project details along with the isBookmarked flag
+    return res.status(200).send({ ...project, isBookmarked, message: "Project details fetched successfully" });
   } catch (error) {
-    console.log("error in getProjectDetails->", error);
+    console.error("error fetching project details:", error);
     return res
-      .status(400)
-      .send({ message: "Error fetching project details in backend" });
+      .status(500)
+      .send({ message: "Error fetching project details", error });
   }
 }
+
 
 async function bidOnProject(req, res, next) {
   try {
@@ -202,79 +231,79 @@ async function bidOnProject(req, res, next) {
   }
 }
 
-async function bookmarkProject(req, res, next) {
-  try {
-    const { projectId } = req.params;
-    const { userId } = req.user;
+// async function bookmarkProject(req, res, next) {
+//   try {
+//     const { projectId } = req.params;
+//     const { userId } = req.user;
 
-    // Check if project exists
-    const project = await prisma.project.findUnique({
-      where: { id: Number(projectId) },
-    });
+//     // Check if project exists
+//     const project = await prisma.project.findUnique({
+//       where: { id: Number(projectId) },
+//     });
 
-    if (!project) {
-      return res.status(404).send({ message: "Project not found" });
-    }
+//     if (!project) {
+//       return res.status(404).send({ message: "Project not found" });
+//     }
 
-    // Add bookmark to the project
-    const bookmark = await prisma.bookmark.create({
-      data: {
-        projectId: Number(projectId),
-        userId: Number(userId),
-      },
-    });
+//     // Add bookmark to the project
+//     const bookmark = await prisma.bookmark.create({
+//       data: {
+//         projectId: Number(projectId),
+//         userId: Number(userId),
+//       },
+//     });
 
-    return res
-      .status(201)
-      .send({ message: "Project bookmarked successfully", bookmark });
-  } catch (error) {
-    console.log("error in bookmarkProject->", error);
-    return res.status(400).send({ message: "Error bookmarking project" });
-  }
-}
+//     return res
+//       .status(201)
+//       .send({ message: "Project bookmarked successfully", bookmark });
+//   } catch (error) {
+//     console.log("error in bookmarkProject->", error);
+//     return res.status(400).send({ message: "Error bookmarking project" });
+//   }
+// }
 
-async function unbookmarkProject(req, res, next) {
-  try {
-    const { projectId } = req.params;
-    const { userId } = req.user;
+// async function unbookmarkProject(req, res, next) {
+//   try {
+//     const { projectId } = req.params;
+//     const { userId } = req.user;
 
-    // Check if bookmark exists
-    const bookmark = await prisma.bookmark.findUnique({
-      where: {
-        projectId_userId: {
-          projectId: Number(projectId),
-          userId: Number(userId),
-        },
-      },
-    });
+//     // Check if bookmark exists
+//     const bookmark = await prisma.bookmark.findUnique({
+//       where: {
+//         projectId_userId: {
+//           projectId: Number(projectId),
+//           userId: Number(userId),
+//         },
+//       },
+//     });
 
-    if (!bookmark) {
-      return res.status(404).send({ message: "Bookmark not found" });
-    }
+//     if (!bookmark) {
+//       return res.status(404).send({ message: "Bookmark not found" });
+//     }
 
-    // Remove bookmark from the project
-    await prisma.bookmark.delete({
-      where: {
-        projectId_userId: {
-          projectId: Number(projectId),
-          userId: Number(userId),
-        },
-      },
-    });
+//     // Remove bookmark from the project
+//     await prisma.bookmark.delete({
+//       where: {
+//         projectId_userId: {
+//           projectId: Number(projectId),
+//           userId: Number(userId),
+//         },
+//       },
+//     });
 
-    return res
-      .status(200)
-      .send({ message: "Project unbookmarked successfully" });
-  } catch (error) {
-    console.log("error in unbookmarkProject->", error);
-    return res.status(400).send({ message: "Error unbookmarking project" });
-  }
-}
+//     return res
+//       .status(200)
+//       .send({ message: "Project unbookmarked successfully" });
+//   } catch (error) {
+//     console.log("error in unbookmarkProject->", error);
+//     return res.status(400).send({ message: "Error unbookmarking project" });
+//   }
+// }
 
 export {
   filterProjects,
-  getProjectDetails,
+  // getProjectDetails,
   bidOnProject,
-  bookmarkProject,
-  unbookmarkProject,
+  // bookmarkProject,
+  // unbookmarkProject,
 };
