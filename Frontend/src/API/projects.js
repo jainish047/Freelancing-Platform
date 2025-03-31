@@ -18,5 +18,28 @@ const fetchProjectDetails = async (id) => {
   }
 };
 
+export async function getMyProjects() {
+  try {
+    return api.get(`/projects2/my`);
+  } catch (err) {
+    console.log("error in projects fetch:->", err);
+  }
+}
+
+export async function getAssignedProjects(){
+  try {
+    return api.get(`/projects2/assigned`);
+  } catch (err) {
+    console.log("error in projects fetch:->", err);
+  }
+}
+
+export async function getBids(){
+  try {
+    return api.get(`/projects2/bids`);
+  } catch (err) {
+    console.log("error in projects fetch:->", err);
+  }
+}
 
 export { fetchProjects, fetchProjectDetails };

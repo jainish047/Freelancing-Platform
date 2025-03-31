@@ -11,6 +11,7 @@ import "./strategy/google.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import projectsRouter from "./routes/projectsRoutes.js";
+import projectsRouter2 from "./routes/projectsRoutes2.js";
 import generalRouter from "./routes/generalRoutes.js";
 import listsRouter from "./routes/listsRoutes.js";
 import freelancersRouter from "./routes/freelancersRoutes.js";
@@ -39,6 +40,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/general", generalRouter);
 app.use("/api/user", getUserIfThere, userRouter);
 app.use("/api/projects", projectsRouter);
+app.use("/api/projects2", projectsRouter2)
 app.use("/api/freelancers", freelancersRouter);
 app.use(
   "/api/lists",

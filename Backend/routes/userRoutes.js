@@ -5,6 +5,10 @@ import {
   userDetails,
 } from "../controllers/userController.js";
 import passport from "passport";
+import {
+  getAssignedProjects,
+  getMyProjects,
+} from "../controllers/projectsController.js";
 
 const router = express.Router();
 
