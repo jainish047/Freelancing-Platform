@@ -4,8 +4,8 @@ import { api } from "./axiosConfig";
 const getSelfDetails = async () => {
   return await api
     .get("/user/self")
-    .then((responce) => {
-      return responce;
+    .then((response) => {
+      return response;
     })
     .catch((error) => {
       throw error;
@@ -15,8 +15,8 @@ const getSelfDetails = async () => {
 const getUserDetails = async (id) => {
   return await api
     .get(`/user/${id}`)
-    .then((responce) => {
-      return responce;
+    .then((response) => {
+      return response;
     })
     .catch((error) => {
       throw error;

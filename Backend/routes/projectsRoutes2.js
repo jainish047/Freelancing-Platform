@@ -1,24 +1,23 @@
-import express from "express";
 import {
-  filterProjects,
-  getProjectDetails,
-  bidOnProject,
-  getMyProjects,
   getAssignedProjects,
+  getMyProjects,
 } from "../controllers/projectsController.js";
+import express from "express";
 import passport from "passport";
 import "../strategy/jwt.js";
 
 const router = express.Router();
 
-router.get("/", filterProjects);
-
-router.get("/:projectId", getProjectDetails);
-
-router.post(
-  "/:projectId/bid",
+router.get(
+  "/my",
   passport.authenticate("jwt", { session: false }),
-  bidOnProject
+  getMyProjects
+);
+
+router.get(
+  "/assigned",
+  passport.authenticate("jwt", { session: false }),
+  getAssignedProjects
 );
 
 export default router;

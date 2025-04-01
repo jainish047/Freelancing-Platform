@@ -35,8 +35,8 @@ const signup = async (user) => {
   console.log(user);
   return api
     .post("/auth/signup", user)
-    .then((responce) => {
-      return responce;
+    .then((response) => {
+      return response;
     })
     .catch((error) => {
       throw error;
@@ -47,8 +47,8 @@ const resendVerificationEMail = async (email) => {
   console.log(email);
   return api
     .get("/auth/resendVerificationEMail", { email })
-    .then((responce) => {
-      return responce;
+    .then((response) => {
+      return response;
     })
     .catch((error) => {
       return error;
@@ -157,8 +157,8 @@ const signup = async (user) => {
   console.log(user);
   return api
     .post("/auth/signup", user)
-    .then((responce) => {
-      return responce;
+    .then((response) => {
+      return response;
     })
     .catch((error) => {
       throw error;
@@ -169,8 +169,8 @@ const resendVerificationEMail = async (email) => {
   console.log(email);
   return api
     .get("/auth/resendVerificationEMail", { email })
-    .then((responce) => {
-      return responce;
+    .then((response) => {
+      return response;
     })
     .catch((error) => {
       return error;
@@ -225,5 +225,5 @@ const logout = () => {
 
 export { login, signup, resendVerificationEMail, logout };
 
--> can we set google api call and responce, token storage here?
+-> can we set google api call and response, token storage here?
 */

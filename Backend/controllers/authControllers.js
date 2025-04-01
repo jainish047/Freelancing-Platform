@@ -201,7 +201,7 @@ export async function login(req, res) {
 
   // generating access token
   const accessToken = jwt.sign(
-    { email, role },
+    { email, role, id:dbuser.id },
     process.env.ACCESS_TOKEN_SECRET
   );
   return res
@@ -214,9 +214,10 @@ export async function login(req, res) {
 }
 
 export const loginGoogle = (req, res) => {
+  console.log("in google login: ", req.user.id)
   // ✅ Generate JWT Token for the user
   const token = jwt.sign(
-    { id: req.user._id, email: req.user.email },
+    { id: req.user.id, email: req.user.email },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "1h" } // Token expires in 1 hr
   );

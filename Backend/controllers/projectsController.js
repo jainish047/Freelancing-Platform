@@ -11,7 +11,7 @@ async function filterProjects(req, res) {
       clientCountries,
       languages,
       sortBy,
-      page = 1,
+      page = 0,
     } = req.query;
 
     console.log("req query->", req.query);
@@ -121,15 +121,13 @@ async function filterProjects(req, res) {
     // Performance boost: Reduces the number of database queries from 2 to 1, reducing latency.
 
     console.log(`filtered ${totalProjects} projects->`);
-    return res
-      .status(200)
-      .send({
-        message: "filtered projects",
-        projects,
-        totalPages:
-          Number(totalProjects) / process.env.PROJECTSPERPAGE +
-          (Number(totalProjects) % process.env.PROJECTSPERPAGE !== 0 ? 1 : 0),
-      });
+    return res.status(200).send({
+      message: "filtered projects",
+      projects,
+      totalPages:
+        Number(totalProjects) / process.env.PROJECTSPERPAGE +
+        (Number(totalProjects) % process.env.PROJECTSPERPAGE !== 0 ? 1 : 0),
+    });
   } catch (error) {
     console.log("error in project filter->", error);
     return res
@@ -138,16 +136,27 @@ async function filterProjects(req, res) {
   }
 }
 
-async function getProjectDetails(req, res, next) {
+export async function getProjectDetails(req, res) {
   try {
-    const { projectId } = req.params;
+    // Extract projectId from the request parameters and current user's id (if available)
+    const projectId = req.params.projectId;
+    const currentUserId = req.user?.id;
 
+    console.log("fetching project with id:", projectId);
+    console.log("currentUserId:", currentUserId);
+
+    // Validate the existence of projectId
+    if (!projectId) {
+      return res.status(400).send({ message: "Project id is required" });
+    }
+
+    // Retrieve project details with associated user, bids, and freelancer information
     const project = await prisma.project.findUnique({
-      where: { id: Number(projectId) },
+      where: { id: projectId },
       include: {
-        user: true, // Include client details
-        bids: true, // Include bids details
-        skillsRequired: true, // Include skills required details
+        user: true, // project owner info
+        bids: true, // all bids on this project
+        freelancer: true, // assigned freelancer info
       },
     });
 
@@ -155,12 +164,33 @@ async function getProjectDetails(req, res, next) {
       return res.status(404).send({ message: "Project not found" });
     }
 
-    return res.status(200).send({ project });
+    // Check if the current user has bookmarked this project (similar to the follow check in userDetails)
+    const bookmarkRecord = currentUserId
+      ? await prisma.bookmark.findFirst({
+          where: {
+            userId: currentUserId,
+            projectId: projectId,
+          },
+        })
+      : null;
+
+    // Convert the bookmark record to a boolean flag
+    const isBookmarked = !!bookmarkRecord;
+
+    console.log("found project:", project);
+    console.log("isBookmarked:", isBookmarked);
+
+    // Return project details along with the isBookmarked flag
+    return res.status(200).send({
+      ...project,
+      isBookmarked,
+      message: "Project details fetched successfully",
+    });
   } catch (error) {
-    console.log("error in getProjectDetails->", error);
+    console.error("error fetching project details:", error);
     return res
-      .status(400)
-      .send({ message: "Error fetching project details in backend" });
+      .status(500)
+      .send({ message: "Error fetching project details", error });
   }
 }
 
@@ -202,79 +232,65 @@ async function bidOnProject(req, res, next) {
   }
 }
 
-async function bookmarkProject(req, res, next) {
+export async function getMyProjects(req, res) {
   try {
-    const { projectId } = req.params;
-    const { userId } = req.user;
-
-    // Check if project exists
-    const project = await prisma.project.findUnique({
-      where: { id: Number(projectId) },
-    });
-
-    if (!project) {
-      return res.status(404).send({ message: "Project not found" });
+    // Get the logged-in user id from req.user
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).send({ message: "Unauthorized" });
     }
 
-    // Add bookmark to the project
-    const bookmark = await prisma.bookmark.create({
-      data: {
-        projectId: Number(projectId),
-        userId: Number(userId),
+    // Find projects where the user is the creator (client)
+    const projects = await prisma.project.findMany({
+      where: { userId: userId },
+      include: {
+        user: true, // Client (project owner) details
+        bids: true, // All bids on the project
+        freelancer: true, // Freelancer details if assigned
       },
-    });
-
-    return res
-      .status(201)
-      .send({ message: "Project bookmarked successfully", bookmark });
-  } catch (error) {
-    console.log("error in bookmarkProject->", error);
-    return res.status(400).send({ message: "Error bookmarking project" });
-  }
-}
-
-async function unbookmarkProject(req, res, next) {
-  try {
-    const { projectId } = req.params;
-    const { userId } = req.user;
-
-    // Check if bookmark exists
-    const bookmark = await prisma.bookmark.findUnique({
-      where: {
-        projectId_userId: {
-          projectId: Number(projectId),
-          userId: Number(userId),
-        },
-      },
-    });
-
-    if (!bookmark) {
-      return res.status(404).send({ message: "Bookmark not found" });
-    }
-
-    // Remove bookmark from the project
-    await prisma.bookmark.delete({
-      where: {
-        projectId_userId: {
-          projectId: Number(projectId),
-          userId: Number(userId),
-        },
-      },
+      orderBy: { createdAt: "desc" },
     });
 
     return res
       .status(200)
-      .send({ message: "Project unbookmarked successfully" });
+      .send({ projects, message: "Created projects fetched successfully" });
   } catch (error) {
-    console.log("error in unbookmarkProject->", error);
-    return res.status(400).send({ message: "Error unbookmarking project" });
+    console.error("Error fetching created projects:", error);
+    return res
+      .status(500)
+      .send({ message: "Error fetching created projects", error });
   }
 }
 
-export {
-  filterProjects,
-  getProjectDetails,
-  bidOnProject,
-  bookmarkProject,
-  unbookmarkProject,
-};
+export async function getAssignedProjects(req, res) {
+  try {
+    // Get the logged-in user id from req.user
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).send({ message: "Unauthorized" });
+    }
+
+    // Find projects where the logged-in user is assigned as a freelancer.
+    const projects = await prisma.project.findMany({
+      where: { assignedTo: userId },
+      include: {
+        user: true,       // Project owner details
+        bids: true,       // All bids on the project
+        freelancer: true, // Freelancer details (should match logged-in user)
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res
+      .status(200)
+      .send({ projects, message: "Assigned projects fetched successfully" });
+  } catch (error) {
+    console.error("Error fetching assigned projects:", error);
+    return res
+      .status(500)
+      .send({ message: "Error fetching assigned projects", error });
+  }
+
+}
+
+export { filterProjects, bidOnProject };

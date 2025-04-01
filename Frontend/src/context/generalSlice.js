@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { setLoadingState } from "./loadingSlice";
-import { fetchCountries, fetchSkills } from "../API/general";
+import { fetchCountries, fetchLanguages, fetchSkills } from "../API/general";
 
 const initialState = {
   skills: [
@@ -75,6 +75,7 @@ const initialState = {
       name: "Brazil",
     },
   ],
+  languages:[],
   projectsPerPage: 10,
 };
 
@@ -110,6 +111,22 @@ export const getCountries = createAsyncThunk(
   }
 );
 
+export const getLanguages = createAsyncThunk(
+  "fetch/languages",
+  async (_, { rejectWithValue }) => {
+    try {
+      const resoponce = await fetchLanguages();
+      console.log("languages->", resoponce.data.languages);
+      return resoponce.data.languages;
+    } catch (err) {
+      return rejectWithValue({
+        message: err.message || "Languages fetching failed",
+        status: err.status || 500,
+      });
+    }
+  }
+);
+
 const generalSlice = createSlice({
   name: "general",
   initialState,
@@ -136,7 +153,18 @@ const generalSlice = createSlice({
       })
       .addCase(getCountries.rejected, (state, action) => {
         setLoadingState({ actionName: "countries", isLoading: false });
-        console.error("Skills fetch failed:", action.payload);
+        console.error("Countries fetch failed:", action.payload);
+      })
+      .addCase(getLanguages.pending, (state) => {
+        setLoadingState({ actionName: "languages", isLoading: true });
+      })
+      .addCase(getLanguages.fulfilled, (state, action) => {
+        setLoadingState({ actionName: "languages", isLoading: false });
+        state.languages = action.payload;
+      })
+      .addCase(getLanguages.rejected, (state, action) => {
+        setLoadingState({ actionName: "languages", isLoading: false });
+        console.error("Languages fetch failed:", action.payload);
       });
   },
 });

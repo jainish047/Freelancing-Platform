@@ -23,8 +23,8 @@ export const filterProjects = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const projectFilters = getState().projectFilter;
-      const responce = await fetchProjects(projectFilters.filters);
-      return responce.data;
+      const response = await fetchProjects(projectFilters.filters);
+      return response.data;
     } catch (err) {
       console.log("error in project slice->", err);
       return rejectWithValue({
