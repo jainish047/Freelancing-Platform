@@ -34,6 +34,14 @@ export async function getAssignedProjects(){
   }
 }
 
+export async function bid({bidAmount, deliveryTime, proposal, milestoneDetails, id}){
+  try {
+    return api.post(`/projects/${id}/bid`, {bidAmount, deliveryTime, proposal, milestoneDetails});
+  } catch (err) {
+    console.log("error in projects fetch:->", err);
+  }
+}
+
 export async function getBids(){
   try {
     return api.get(`/projects2/bids`);

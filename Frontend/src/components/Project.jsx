@@ -59,11 +59,11 @@ export default function Project({ project }) {
         <div className="flex flex-col items-start">
           <div>
             <span className="text-gray-600">Average Bid: </span>
-            <span className="font-medium">${project.averageBidPrice}</span>
+            <span className="font-medium">${project.averageBidBudget || " -"}</span>
           </div>
           <div>
             <span className="text-gray-600">Total Bids: </span>
-            <span className="font-medium">{project.totalBids}</span>
+            <span className="font-medium">{project.noOfBids || 0}</span>
           </div>
         </div>
       </div>

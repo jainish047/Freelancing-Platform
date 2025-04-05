@@ -139,14 +139,18 @@ const Profile = () => {
                     className="p-0 hover:border-none border border-1 rounded-circle bg-danger"
                     onClick={handleFollowClick}
                   >
-                    <p className="text-red-600 border rounded-full p-3 py-2 bg-red-200">Unfollow</p>
-                    </button>
+                    <p className="text-red-600 border rounded-full p-3 py-2 bg-red-200">
+                      Unfollow
+                    </p>
+                  </button>
                 ) : (
                   <button
                     className="p-0 hover:border-none border border-1 rounded-circle bg-success"
                     onClick={handleFollowClick}
                   >
-                    <p className="text-green-600 border rounded-full p-3 py-2 bg-green-200">Follow</p>
+                    <p className="text-green-600 border rounded-full p-3 py-2 bg-green-200">
+                      Follow
+                    </p>
                   </button>
                 ))}
             </div>
@@ -227,9 +231,7 @@ const Profile = () => {
           {/* Rating & Message Box */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h4 className="font-semibold text-center">Message</h4>
-            <div className="text-center my-2">
-              Email: {userDetails.email}
-            </div>
+            <div className="text-center my-2">Email: {userDetails.email}</div>
             <button className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
               Send Message
             </button>

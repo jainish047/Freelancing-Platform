@@ -24,6 +24,11 @@ import ProjectUpdates from "./pages/dashboard/ProjectUpdates.jsx";
 import ProjectDetails from "./pages/projects/ProjectDetails.jsx";
 import ProjectNotFound from "./pages/notFoundPages/ProjectNotFound.jsx";
 import NotFound from "./pages/notFoundPages/PageNotFound.jsx";
+import Setting, { SettingDefault } from "./pages/setting/Setting.jsx";
+import ChangePW from "./pages/setting/ChangePW.jsx";
+import UpdateProfile from "./pages/setting/UpdateProfile.jsx";
+import ForgotPW from "./pages/authentication/ForgotPW.jsx";
+import ResetPW from "./pages/authentication/ResetPassword.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -51,6 +56,14 @@ const Router = createBrowserRouter([
       {
         path: "verify-email",
         element: <VerifyEmail />,
+      },
+      {
+        path: "forgotpw",
+        element: <ForgotPW />,
+      },
+      {
+        path: "setpassword",
+        element: <ResetPW />,
       },
     ],
   },
@@ -85,7 +98,7 @@ const Router = createBrowserRouter([
                 path: "*",
                 element: <ProjectNotFound />,
               },
-            ]
+            ],
           },
           {
             path: "projectUpdates",
@@ -107,6 +120,25 @@ const Router = createBrowserRouter([
           {
             path: "projects",
             element: <ExploreProjects />,
+          },
+        ],
+      },
+      {
+        path: "settings",
+        element: <Setting />,
+        children: [
+          {
+            path: "",
+            element: <SettingDefault />,
+          },
+          {
+            path: "editprofile",
+            element: <UpdateProfile />,
+          },
+          {
+            path: "changepassword",
+
+            element: <ChangePW />,
           },
         ],
       },

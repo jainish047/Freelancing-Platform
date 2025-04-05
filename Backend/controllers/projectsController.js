@@ -154,15 +154,29 @@ export async function getProjectDetails(req, res) {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        user: true, // project owner info
-        bids: true, // all bids on this project
-        freelancer: true, // assigned freelancer info
+        user: true, // Project owner info
+        bids: {
+          include: {
+            user: {
+              // Bidder's info
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+        freelancer: true, // Assigned freelancer info
       },
     });
 
     if (!project) {
       return res.status(404).send({ message: "Project not found" });
     }
+
+    console.log("currentUserId: ", currentUserId)
+    console.log("projectId: ", projectId)
 
     // Check if the current user has bookmarked this project (similar to the follow check in userDetails)
     const bookmarkRecord = currentUserId
@@ -173,6 +187,8 @@ export async function getProjectDetails(req, res) {
           },
         })
       : null;
+
+    console.log("finding if bookmark exist:->", bookmarkRecord);
 
     // Convert the bookmark record to a boolean flag
     const isBookmarked = !!bookmarkRecord;
@@ -196,41 +212,92 @@ export async function getProjectDetails(req, res) {
 
 async function bidOnProject(req, res, next) {
   try {
+    const { bidAmount, deliveryTime, proposal, milestoneDetails } = req.body;
     const { projectId } = req.params;
-    const { userId } = req.user;
-    const { bidAmount } = req.body;
+    const userId = req.user.id;
 
-    // Check if project exists
+    if (!bidAmount || !proposal) {
+      return res
+        .status(400)
+        .json({ error: "Bid amount and proposal are required." });
+    }
+
+    // Check if the project exists
     const project = await prisma.project.findUnique({
-      where: { id: Number(projectId) },
+      where: { id: projectId },
     });
 
     if (!project) {
-      return res.status(404).send({ message: "Project not found" });
+      return res.status(404).json({ error: "Project not found." });
     }
 
-    // Check if bid amount is within the budget range
-    if (bidAmount < project.minBudget || bidAmount > project.maxBudget) {
-      return res
-        .status(400)
-        .send({ message: "Bid amount out of budget range" });
-    }
+    const parsedMilestones =
+      typeof milestoneDetails === "string"
+        ? JSON.parse(milestoneDetails)
+        : milestoneDetails;
 
-    // Create a new bid
-    const bid = await prisma.bid.create({
+    // Create the bid
+    await prisma.bid.create({
       data: {
-        amount: bidAmount,
-        projectId: Number(projectId),
-        userId: Number(userId),
+        projectId,
+        userId,
+        amount: Number(bidAmount),
+        proposal,
+        milestones: parsedMilestones,
+        createdAt: new Date(),
       },
     });
 
-    return res.status(201).send({ message: "Bid placed successfully", bid });
+    // Fetch all bids for the project
+    const allBids = await prisma.bid.findMany({
+      where: { projectId },
+      select: { amount: true },
+    });
+
+    // Calculate total number of bids
+    const totalBids = allBids.length;
+
+    // Calculate the average bid amount
+    const totalBidAmount = allBids.reduce((sum, bid) => sum + bid.amount, 0);
+    const averageBidAmount = totalBids > 0 ? totalBidAmount / totalBids : 0;
+
+    // Update project with new bid stats
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        noOfBids: totalBids,
+        averageBidBudget: Math.round(averageBidAmount), // Rounding for clarity
+      },
+    });
+
+    console.log("Total Bids:", totalBids, "Average Bid Amount:", averageBidAmount);
+
+    // Fetch and return updated bids
+    const updatedBids = await prisma.bid.findMany({
+      where: { projectId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return res.status(201).json({
+      bids: updatedBids,
+      message: "Bid posted successfully",
+      noOfBids: totalBids,
+      averageBidBudget: Math.round(averageBidAmount),
+    });
   } catch (error) {
-    console.log("error in bidOnProject->", error);
-    return res.status(400).send({ message: "Error placing bid on project" });
+    console.error("Error posting bid:", error);
+    return res.status(500).json({ error: "Internal server error." });
   }
 }
+
 
 export async function getMyProjects(req, res) {
   try {
@@ -274,8 +341,8 @@ export async function getAssignedProjects(req, res) {
     const projects = await prisma.project.findMany({
       where: { assignedTo: userId },
       include: {
-        user: true,       // Project owner details
-        bids: true,       // All bids on the project
+        user: true, // Project owner details
+        bids: true, // All bids on the project
         freelancer: true, // Freelancer details (should match logged-in user)
       },
       orderBy: { createdAt: "desc" },
@@ -290,7 +357,6 @@ export async function getAssignedProjects(req, res) {
       .status(500)
       .send({ message: "Error fetching assigned projects", error });
   }
-
 }
 
 export { filterProjects, bidOnProject };

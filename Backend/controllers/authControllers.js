@@ -201,7 +201,7 @@ export async function login(req, res) {
 
   // generating access token
   const accessToken = jwt.sign(
-    { email, role, id:dbuser.id },
+    { email, role, id: dbuser.id },
     process.env.ACCESS_TOKEN_SECRET
   );
   return res
@@ -213,8 +213,150 @@ export async function login(req, res) {
     .json({ user: dbuser, token: accessToken, message: "Token assigned" });
 }
 
+export async function forgotPWEmail(req, res) {
+  try {
+    const { email } = req.body;
+    console.log("email: ", email);
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    // send email
+    console.log("in sendPWforgot email function");
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // You can use your email provider
+      auth: {
+        user: process.env.EMAIL_USER, // Your email
+        pass: process.env.EMAIL_PASS, // Your email password or app-specific password
+      },
+    });
+
+    const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const resetPWURL = `${process.env.FRONTEND_URL}/verify/setpassword?token=${token}`;
+
+    try {
+      await transporter.sendMail({
+        from: '"P4" <no-reply@example.com>',
+        to: email,
+        subject: "Password Reset",
+        html: `
+            <p>Hello ${email},</p>
+            <p>Please click button reset password:</p>
+            <a href="${resetPWURL}"><button>Reset Password</button></a><br>
+            <a>${resetPWURL}</a>
+            <p>The link will expire in 1 hour.</p>
+          `,
+      });
+
+      console.log("email sent to ", email);
+      return res.status(200).send({ message: "Reset Password email sent" });
+    } catch (error) {
+      console.log("error sending reset pw email: ", error);
+      return res
+        .status(400)
+        .send({ message: "Error sending reset pw email" });
+    }
+  } catch (err) {
+    console.log("error in forgotPWEmail: ", err);
+    return res.status(400).send({ message: "Something went wrong" });
+  }
+}
+
+export async function resetPassword(req, res) {
+  try{
+    const {password, token} = req.body;
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const { email } = decoded;
+    console.log("email: ", email);
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    // hash password
+    const hashedPassword = await bcrypt.hash(
+      password,
+      parseInt(process.env.SALT_ROUNDS, 10)
+    );
+    // update password
+    await prisma.user.update({
+      where: {
+        email: email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    console.log("password updated");
+    return res.status(200).send({ message: "Password updated successfully" });
+  }catch(err){
+    console.log("error in reset password: ", err);
+    return res.status(400).send({ message: "Something went in reseting password" });
+  }
+}
+
+export async function setPassword(req, res) {
+  try{
+    const email = req.user.email;
+    const {currentPassword, newPassword} = req.body;
+    console.log("email: ", email);
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    if (!currentPassword || !newPassword) {
+      console.log("Invalid current password or new password");
+      return res.status(400).send({ message: "Invalid current password or new password" });
+    }
+    // check if current password is correct
+    const currentPasswordHash = user.password;
+    const isMatch = await bcrypt.compare(currentPassword, currentPasswordHash);
+    if (!isMatch) {
+      console.log("Invalid current password");
+      return res.status(400).send({ message: "Invalid current password" });
+    }
+    if(newPassword === currentPassword) {
+      return res.status(400).send({ message: "New password cannot be same as current password" });
+    }
+    // hash password
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      parseInt(process.env.SALT_ROUNDS, 10)
+    );
+    // update password
+    await prisma.user.update({
+      where: {
+        email: email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    console.log("password updated");
+    return res.status(200).send({ message: "Password updated successfully" });
+  }catch(err){
+    console.log("error in set password: ", err);
+    return res.status(400).send({ message: "Something went wrong in seting password" });
+  }
+}
+
 export const loginGoogle = (req, res) => {
-  console.log("in google login: ", req.user.id)
+  console.log("in google login: ", req.user.id);
   // ✅ Generate JWT Token for the user
   const token = jwt.sign(
     { id: req.user.id, email: req.user.email },

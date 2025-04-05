@@ -19,8 +19,8 @@ export default passport.use(
           update: {
             // Optionally update the Google ID or other fields on subsequent logins.
             googleId: profile.id,
-            name: profile.displayName,
-            profilePic: profile.photos[0].value,
+            // name: profile.displayName,
+            // profilePic: profile.photos[0].value,
             provider: "google",
             emailVerified: true,
           },

@@ -7,6 +7,7 @@ const initialState = {
     signup: false,
     fetchUserInfo: false,
     resendEmail:false,
+    resetPW: false,
     projects: false,
     skills: false
   }

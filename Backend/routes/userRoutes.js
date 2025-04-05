@@ -5,10 +5,7 @@ import {
   userDetails,
 } from "../controllers/userController.js";
 import passport from "passport";
-import {
-  getAssignedProjects,
-  getMyProjects,
-} from "../controllers/projectsController.js";
+import { upload } from "../common/multer.js";
 
 const router = express.Router();
 
@@ -21,6 +18,7 @@ router.get(
 router.put(
   "/self",
   passport.authenticate("jwt", { session: false }),
+  upload.single("profilePic"),
   updateProfile
 );
 

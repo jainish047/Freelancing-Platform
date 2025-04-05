@@ -6,12 +6,15 @@ import {
   resendVerificationEMail,
   loginGoogle,
   getMe,
+  forgotPWEmail,
+  resetPassword,
+  setPassword,
 } from "../controllers/authControllers.js";
 import passport from "passport";
 
 const router = express.Router();
 
-router.get("/getMe", getMe)
+router.get("/getMe", getMe);
 
 router.post("/login", login);
 
@@ -20,6 +23,21 @@ router.post("/signup", signup);
 router.post("/verifyEmail", verifyEmail);
 
 router.get("/resendVerificationEMail", resendVerificationEMail);
+
+router.post("/forgotPWEmail", forgotPWEmail);
+
+router.post("/resetPW", resetPassword);
+
+router.post(
+  "/setPW",
+  passport.authenticate("jwt", { session: false }),
+  setPassword
+);
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("authToken", { path: "/" });
+  res.status(200).send({ message: "Logged out successfully" });
+});
 
 // Google OAuth Login, when google login button is clicked
 router.get(

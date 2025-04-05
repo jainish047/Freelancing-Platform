@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaStar, FaTimes } from "react-icons/fa";
-import { fetchProjectDetails } from "../../API/projects";
+import { bid, fetchProjectDetails } from "../../API/projects";
 import Loader from "../../components/Loader";
 import { useSelector } from "react-redux";
 import {
@@ -11,22 +11,35 @@ import {
   TabsList,
   TabsTrigger,
 } from "../../components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { addToList, removeItemFromList } from "../../API/list";
 import { useToast } from "../../hooks/use-toast";
+import BidComponent from "./BidComponent";
 
 const ProjectDetails = () => {
   const { toast } = useToast();
   const { id } = useParams();
   const [project, setProject] = useState(null);
+  const skills = useSelector((state) => state.general.skills);
+  const user = useSelector((state) => state.auth.user);
+
   const [bidAmount, setBidAmount] = useState("");
   const [deliveryTime, setDeliveryTime] = useState("");
   const [proposal, setProposal] = useState("");
   const [milestoneDetails, setMilestoneDetails] = useState([
     { description: "", amount: "" },
   ]);
-  const skills = useSelector((state) => state.general.skills);
-  const user = useSelector((state) => state.auth.user);
+  const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -105,10 +118,10 @@ const ProjectDetails = () => {
       let response;
       if (!project.isBookmarked) {
         response = await addToList("bookmark", "PROJECT", id);
-        setProject({...project, isBookmarked:true});
+        setProject({ ...project, isBookmarked: true });
       } else {
         response = await removeItemFromList("bookmark", id);
-        setProject({...project, isBookmarked:false});
+        setProject({ ...project, isBookmarked: false });
       }
       toast({
         title: response.data.message,
@@ -126,11 +139,19 @@ const ProjectDetails = () => {
   async function handleBidClick() {
     try {
       if (!user) throw new Error("Login Required");
+      const response = await bid({
+        bidAmount,
+        deliveryTime,
+        proposal,
+        milestoneDetails,
+        id,
+      });
+      setProject({ ...project, ...(response.data) });
     } catch (err) {
-      console.log("error bidding:->", err.message);
+      console.log("error bidding:->", err.response.data.message || err.message);
       toast({
         variant: "destructive",
-        title: err.message || err.response.data.message,
+        title: err.response?.data?.message || err.message,
         duration: 2000,
       });
     }
@@ -186,12 +207,102 @@ const ProjectDetails = () => {
               <Bookmark className="w-6 h-6 text-gray-500" />
             )} */}
             {/* </button> */}
-            <button
-              className="text-white bg-blue-500 py-2 px-3"
-              onClick={handleBidClick}
-            >
-              Bid
-            </button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <button
+                  className="text-white bg-blue-500 py-2 px-3"
+                  onClick={() => setOpen(true)}
+                >
+                  Bid
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <p className="text-xl font-bold">Describe your Proposal</p>
+                </DialogHeader>
+                {/* <div className="mt-6 p-4 border rounded-lg shadow-md bg-gray-50"> */}
+                {/* <h2 className="text-lg font-semibold">Place a Bid</h2> */}
+                <label className="block mt-2">Bid Amount ($)</label>
+                <input
+                  type="number"
+                  className="border rounded p-2 w-full"
+                  placeholder="Enter bid amount"
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  required
+                />
+                <label className="block mt-2">Delivery Time (Days)</label>
+                <input
+                  type="number"
+                  className="border rounded p-2 w-full"
+                  placeholder="Enter delivery time"
+                  value={deliveryTime}
+                  onChange={(e) => setDeliveryTime(e.target.value)}
+                  required
+                />
+                <label className="block mt-2">Your Proposal</label>
+                <textarea
+                  className="border rounded p-2 w-full"
+                  placeholder="Write your proposal (min 100 characters)"
+                  value={proposal}
+                  onChange={(e) => setProposal(e.target.value)}
+                  required
+                />
+                <h3 className="mt-4 font-semibold">Milestones Payment</h3>
+                {milestoneDetails.map((milestone, index) => (
+                  <div key={index} className="mt-2 flex items-center">
+                    <input
+                      type="text"
+                      className="border rounded p-2 w-full"
+                      placeholder="Milestone description"
+                      value={milestone.description}
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                    <input
+                      type="number"
+                      className="border rounded p-2 w-full ml-2"
+                      placeholder="Amount ($)"
+                      value={milestone.amount}
+                      onChange={(e) =>
+                        handleMilestoneChange(index, "amount", e.target.value)
+                      }
+                      required
+                    />
+                    <FaTimes
+                      className="text-red-500 cursor-pointer ml-2"
+                      onClick={() => cancelMilestone(index)}
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={addMilestone}
+                  className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
+                >
+                  Add Milestone
+                </button>
+                {/* </div> */}
+                <DialogFooter>
+                  <div className="flex flex-col justify-center items-center w-full">
+                    {error && <p className="text-red-500">{error}</p>}
+                    <button
+                      onClick={() =>
+                        validateForm() && handleBidClick() && setOpen(false)
+                      }
+                      className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+                    >
+                      Submit Bid
+                    </button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         <hr />
@@ -252,80 +363,16 @@ const ProjectDetails = () => {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="bids">Change your password here.</TabsContent>
-      </Tabs>
-
-      {/* <div className="mt-6 p-4 border rounded-lg shadow-md bg-gray-50">
-        <h2 className="text-lg font-semibold">Place a Bid</h2>
-        {error && <p className="text-red-500">{error}</p>}
-        <label className="block mt-2">Bid Amount ($)</label>
-        <input
-          type="number"
-          className="border rounded p-2 w-full"
-          placeholder="Enter bid amount"
-          value={bidAmount}
-          onChange={(e) => setBidAmount(e.target.value)}
-          required
-        />
-        <label className="block mt-2">Delivery Time (Days)</label>
-        <input
-          type="number"
-          className="border rounded p-2 w-full"
-          placeholder="Enter delivery time"
-          value={deliveryTime}
-          onChange={(e) => setDeliveryTime(e.target.value)}
-          required
-        />
-        <label className="block mt-2">Your Proposal</label>
-        <textarea
-          className="border rounded p-2 w-full"
-          placeholder="Write your proposal (min 100 characters)"
-          value={proposal}
-          onChange={(e) => setProposal(e.target.value)}
-          required
-        />
-        <h3 className="mt-4 font-semibold">Milestones Payment</h3>
-        {milestoneDetails.map((milestone, index) => (
-          <div key={index} className="mt-2 flex items-center">
-            <input
-              type="text"
-              className="border rounded p-2 w-full"
-              placeholder="Milestone description"
-              value={milestone.description}
-              onChange={(e) =>
-                handleMilestoneChange(index, "description", e.target.value)
-              }
-              required
-            />
-            <input
-              type="number"
-              className="border rounded p-2 w-full ml-2"
-              placeholder="Amount ($)"
-              value={milestone.amount}
-              onChange={(e) =>
-                handleMilestoneChange(index, "amount", e.target.value)
-              }
-              required
-            />
-            <FaTimes
-              className="text-red-500 cursor-pointer ml-2"
-              onClick={() => cancelMilestone(index)}
-            />
+        <TabsContent value="bids">
+          <div className="flex flex-col gap-2 h-full">
+            {project.bids.length > 0 ? (
+              project.bids.map((bid) => <BidComponent bid={bid} />)
+            ) : (
+              <div>No Bids. Be the first to bid.</div>
+            )}
           </div>
-        ))}
-        <button
-          onClick={addMilestone}
-          className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
-        >
-          Add Milestone
-        </button>
-        <button
-        onClick={() => validateForm() && alert("Bid submitted successfully!")}
-        className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-      >
-        Submit Bid
-      </button>
-      </div> */}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

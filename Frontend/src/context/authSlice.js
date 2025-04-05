@@ -4,10 +4,14 @@ import {
   signup,
   resendVerificationEMail,
   logout,
+  sendForgotPasswordEmail,
+  resetPassword,
+  setPassword,
 } from "../API/authentication";
 import { setLoadingState } from "./loadingSlice";
 import { getSelfDetails } from "../API/user";
 import { useDispatch } from "react-redux";
+import ResetPW from "../pages/authentication/ResetPassword";
 
 const initialState = {
   user: null,
@@ -23,6 +27,8 @@ export const loginUser = createAsyncThunk(
       const response = await login(user);
       return response.data;
     } catch (err) {
+      console.log(err);
+
       return rejectWithValue({
         message: err.response?.data?.message || "Login failed",
         status: err.response?.status || 500,
@@ -41,6 +47,8 @@ export const signupUser = createAsyncThunk(
       const response = await signup(user);
       return response.data;
     } catch (err) {
+      console.log(err);
+
       return rejectWithValue({
         message: err.response?.data?.message || "Signup failed",
         status: err.response?.status || 500,
@@ -59,18 +67,90 @@ export const resendEmail = createAsyncThunk(
       const response = await resendVerificationEMail(email);
       return response.data;
     } catch (err) {
+      console.log(err);
+
       return rejectWithValue({
         message: err.response?.data?.message || "Resend email failed",
         status: err.response?.status || 500,
       });
     } finally {
-      dispatch(setLoadingState({ actionName: "resendEmail", isLoading: false }));
+      dispatch(
+        setLoadingState({ actionName: "resendEmail", isLoading: false })
+      );
+    }
+  }
+);
+
+export const sendForgotPWEmail = createAsyncThunk(
+  "auth/sendForgotPWEmail",
+  async (email, { rejectWithValue, dispatch }) => {
+    try {
+      dispatch(setLoadingState({ actionName: "resendEmail", isLoading: true }));
+      const response = await sendForgotPasswordEmail(email);
+      return response.data;
+    } catch (err) {
+      console.log(err);
+
+      return rejectWithValue({
+        message: err.response?.data?.message || "sending email failed",
+        status: err.response?.status || 500,
+      });
+    } finally {
+      dispatch(
+        setLoadingState({ actionName: "resendEmail", isLoading: false })
+      );
+    }
+  }
+);
+
+export const resetPW = createAsyncThunk(
+  "auth/sendForgotPWEmail",
+  async ({ password, token }, { rejectWithValue, dispatch }) => {
+    try {
+      dispatch(setLoadingState({ actionName: "resetPW", isLoading: true }));
+      const response = await resetPassword(password, token);
+      return response.data;
+    } catch (err) {
+      console.log(err);
+      return rejectWithValue({
+        message: err.response?.data?.message || "resetting password failed",
+        status: err.response?.status || 500,
+      });
+    } finally {
+      dispatch(setLoadingState({ actionName: "resetPW", isLoading: false }));
+    }
+  }
+);
+
+export const setPW = createAsyncThunk(
+  "auth/sendForgotPWEmail",
+  async ({ currentPassword, newPassword }, { rejectWithValue, dispatch }) => {
+    try {
+      dispatch(setLoadingState({ actionName: "resetPW", isLoading: true }));
+      const response = await setPassword(currentPassword, newPassword);
+      return response.data;
+    } catch (err) {
+      console.log("error in slice:", err);
+      return rejectWithValue({
+        message: err.response?.data?.message || "setting password failed",
+        status: err.response?.status || 500,
+      });
+    } finally {
+      dispatch(setLoadingState({ actionName: "resetPW", isLoading: false }));
     }
   }
 );
 
 export const logoutUser = createAsyncThunk("auth/logout", async () => {
-  logout();
+  try {
+    const response = await logout();
+    return response.data;
+  } catch (err) {
+    return rejectWithValue({
+      message: err.response?.data?.message || "Logout failed",
+      status: err.response?.status || 500,
+    });
+  }
   return null;
 });
 
@@ -78,7 +158,9 @@ export const fetchUserDetails = createAsyncThunk(
   "auth/fetchUserDetails",
   async (_, { getState, rejectWithValue, dispatch }) => {
     try {
-      dispatch(setLoadingState({ actionName: "fetchUserInfo", isLoading: true }));
+      dispatch(
+        setLoadingState({ actionName: "fetchUserInfo", isLoading: true })
+      );
       const token = getState().auth.token;
       if (!token) return rejectWithValue("No token found");
       const response = await getSelfDetails();
@@ -88,7 +170,9 @@ export const fetchUserDetails = createAsyncThunk(
         error.response?.data || "Failed to fetch user details"
       );
     } finally {
-      dispatch(setLoadingState({ actionName: "fetchUserInfo", isLoading: false }));
+      dispatch(
+        setLoadingState({ actionName: "fetchUserInfo", isLoading: false })
+      );
     }
   }
 );
@@ -97,15 +181,20 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
     setToken: (state, action) => {
       state.token = action.payload;
       localStorage.setItem("authToken", action.payload);
     },
     logoutReducer: (state) => {
+      console.log("logging out...");
       state.user = null;
       state.token = null;
       state.error = null;
       localStorage.removeItem("authToken");
+      console.log("current authToken: ", localStorage.getItem("authToken"));
     },
   },
   extraReducers: (builder) => {
@@ -158,5 +247,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setToken, logoutReducer } = authSlice.actions;
+export const { setUser, setToken, logoutReducer } = authSlice.actions;
 export default authSlice.reducer;

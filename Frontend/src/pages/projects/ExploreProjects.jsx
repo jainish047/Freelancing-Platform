@@ -274,7 +274,7 @@ export default function ExploreProjects() {
                 Min:
               </label>
               <div className="flex border rounded shadow-sm p-1">
-                <span className="px-1">₹</span>
+                <span className="px-1">$</span>
                 <input
                   type="number"
                   id="budgetMin"
@@ -305,7 +305,7 @@ export default function ExploreProjects() {
                 Max:
               </label>
               <div className="flex border rounded shadow-sm p-1">
-                <span className="px-1">₹</span>
+                <span className="px-1">$</span>
                 <input
                   type="number"
                   id="budgetMax"

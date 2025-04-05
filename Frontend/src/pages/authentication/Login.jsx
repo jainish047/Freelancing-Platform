@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,11 +10,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../context/authSlice.js";
-import { Loader2, Variable } from "lucide-react";
+import { Loader2, Variable, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Loader from "../../components/Loader.jsx";
 
@@ -76,6 +76,8 @@ export default function Login() {
       });
   };
 
+  const [pwvisible, setpwvisible] = useState(false);
+
   return (
     <Form {...form}>
       <p className="text-center font-bold text-2xl underline">Login</p>
@@ -96,25 +98,32 @@ export default function Login() {
         <FormItem>
           <FormLabel>Password</FormLabel>
           <FormControl>
-            <Input
-              {...register("password")}
-              type="password"
-              placeholder="••••••••"
-              required
-            />
+            <div className="flex justify-around items-center gap-2">
+              <Input
+                {...register("password")}
+                type={pwvisible?"text":"password"}
+                placeholder="••••••••"
+                required
+              />
+              <span onClick={() => setpwvisible(!pwvisible)}>
+                {pwvisible ? <EyeOff size={20} /> : <Eye size={20} />}
+              </span>
+            </div>
           </FormControl>
+
           <FormMessage />
         </FormItem>
 
+        <Link to="/verify/forgotpw" className="text-sm">Forgot Password?</Link>
+
         {isLoading ? (
-          <Loader/>
+          <Loader />
         ) : (
           <Button type="submit" className="w-full">
             Login
           </Button>
         )}
 
-        
         <p className="text-center">
           New user?{" "}
           <Link to="/auth/signup" className="underline text-blue-700">

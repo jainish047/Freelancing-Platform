@@ -18,6 +18,7 @@ model user {
   name                String?
   profilePic          String?
   email               String     @unique
+  profileComplete     Boolean    @default(false)
   role                UserRole
   password            String?
   provider            String     @default("local")
@@ -71,14 +72,16 @@ model project {
 }
 
 model bid {
-  id        String   @id @default(uuid())
-  projectId String
-  userId    String
-  project   project  @relation("ProjectBids", fields: [projectId], references: [id], onDelete: Cascade)
-  user      user     @relation("UserBids", fields: [userId], references: [id], onDelete: Cascade)
-  amount    Float
-  proposal  String
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  projectId    String
+  userId       String
+  project      project  @relation("ProjectBids", fields: [projectId], references: [id], onDelete: Cascade)
+  user         user     @relation("UserBids", fields: [userId], references: [id], onDelete: Cascade)
+  amount       Float
+  deliveryTime Int?
+  proposal     String
+  milestones   Json?
+  createdAt    DateTime @default(now())
 }
 
 model follow {

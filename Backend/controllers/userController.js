@@ -1,5 +1,6 @@
 import prisma from "../prisma/prismaClient.js";
 import { getTable, exist } from "../common/user.js";
+import { uploadFile } from "../common/cloudinary.js";
 
 async function selfDetails(req, res) {
   const user = req.user;
@@ -18,32 +19,69 @@ async function selfDetails(req, res) {
   return res.status(200).send(user);
 }
 
-async function updateProfile(res, req) {
-  const userId = req.user.id;
-  const { name, role, phoneNumber, bio, skills, location, dob, languages } =
-    req.body;
-
+export const updateProfile = async (req, res) => {
   try {
+    const userId = req.user.id; // Assuming user ID is extracted from JWT middleware
+    console.log("updating user profile of user:->", userId);
+
+    const { name, phoneNumber, bio, skills, location, country, dob } = req.body;
+
+    console.log(
+      "gotten details to update: =>",
+      name,
+      phoneNumber,
+      bio,
+      skills,
+      location,
+      country,
+      dob
+    );
+    console.log(req.body)
+
+    // Convert skills (comma-separated) into an array if needed
+    const skillsArray = skills
+      ? skills.split(",").map((skill) => skill.trim())
+      : [];
+
+    let profilePicUrl = null;
+    if (req.file) {
+      profilePicUrl = await uploadFile(req.file.path); // Upload and get URL
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { name, role, phoneNumber, bio, skills, location, dob, languages },
+      data: {
+        name,
+        phoneNumber,
+        bio,
+        skills: skillsArray,
+        location,
+        country,
+        dob: dob ? new Date(dob) : null,
+        profilePic: profilePicUrl || undefined,
+        profileComplete: true, // Set profile as complete if user updates
+      },
     });
 
-    return res
+    console.log("sending user to frontend:->", updatedUser)
+
+    res
       .status(200)
-      .send({ message: "user profile updated", updatedUser });
+      .json({ message: "Profile updated successfully", user: updatedUser });
   } catch (error) {
-    return res.status(500).send({ message: "Error updating profile", error });
+    console.error("Update profile error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
+
 export async function userDetails(req, res) {
   try {
-    console.log("fetching user in user details")
+    console.log("fetching user in user details");
     const userId = req.params.id;
-    const currentUserId = req.user?.id ; // Logged-in user ID
+    const currentUserId = req.user?.id; // Logged-in user ID
 
-    console.log("userId:", userId)
-    console.log("currentUserId:", currentUserId)
+    console.log("userId:", userId);
+    console.log("currentUserId:", currentUserId);
 
     if (!userId)
       return res.status(400).send({ message: "User id is required" });
@@ -69,17 +107,17 @@ export async function userDetails(req, res) {
     // Set isFollowing to true if a follow record exists, otherwise false.
     const isFollowing = !!followRecord;
 
-    console.log("found profile:->", user)
-    console.log("isFollowing:->", isFollowing)
+    console.log("found profile:->", user);
+    console.log("isFollowing:->", isFollowing);
 
     // Return the user details along with the isFollowing property.
     return res.status(200).send({ ...user, isFollowing });
   } catch (error) {
-    console.log("error fetching user details:", error)
+    console.log("error fetching user details:", error);
     return res
       .status(500)
       .send({ message: "Error fetching user details", error });
   }
 }
 
-export { selfDetails, updateProfile };
+export { selfDetails };

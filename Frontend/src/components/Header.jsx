@@ -258,8 +258,17 @@ export default function Header() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+              <DropdownMenuItem
+                  onClick={() => {
+                    navigate("/settings")
+                  }}
+                  className="cursor-pointer"
+                >
+                  Settings
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
+                    // dispatch(logoutReducer())
                     dispatch(logoutUser())
                       .unwrap()
                       .then(() => {
@@ -277,7 +286,7 @@ export default function Header() {
                   className="cursor-pointer"
                 >
                   Logout
-                </DropdownMenuItem>{" "}
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

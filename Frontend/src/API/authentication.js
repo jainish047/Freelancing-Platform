@@ -7,7 +7,7 @@ const getToken = async () => {
       return response.data.token;
     })
     .catch((error) => {
-      console.log(error)
+      console.log(error);
       return null;
     });
 };
@@ -51,7 +51,42 @@ const resendVerificationEMail = async (email) => {
       return response;
     })
     .catch((error) => {
-      return error;
+      throw error;
+    });
+};
+
+const sendForgotPasswordEmail = async (email) => {
+  console.log(email);
+  return api
+    .post("/auth/forgotPWEmail", { email })
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+const resetPassword = async (password, token) => {
+  console.log(password);
+  return api
+    .post("/auth/resetPW", { password,token })
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+const setPassword = async (currentPassword, newPassword) => {
+  return api
+    .post("/auth/setPW", { currentPassword, newPassword })
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
     });
 };
 
@@ -79,10 +114,26 @@ const resendVerificationEMail = async (email) => {
 // };
 
 // Function to handle logout (remove token and clear headers)
-const logout = () => {
-  localStorage.removeItem("authToken"); // Remove the token from localStorage
-  //   localStorage.removeItem('refreshToken'); // Optionally remove refresh token too
-  setAuthToken(null); // Remove Authorization header from Axios
+const logout = async () => {
+  return api
+    .post("/auth/logout")
+    .then((response) => {
+      localStorage.removeItem("authToken");
+      setAuthToken(null);
+      return response;
+    })
+    .catch((error) => {
+      return error;
+    });
+  // try {
+  //   const response = api.get("/auth/logout");
+  //   localStorage.removeItem("authToken"); // Remove the token from localStorage
+  //   //   localStorage.removeItem('refreshToken'); // Optionally remove refresh token too
+  //   setAuthToken(null); // Remove Authorization header from Axios
+  //   return response;
+  // } catch (err) {
+  //   return err;
+  // }
 };
 
 // Example API call to get protected data
@@ -101,7 +152,7 @@ const logout = () => {
 // Check for existing token on app initialization
 // checkAuth();
 
-export { login, signup, resendVerificationEMail, logout, getToken };
+export { login, signup, resendVerificationEMail, sendForgotPasswordEmail, resetPassword, setPassword, logout, getToken };
 
 /*
 axiosConfig.js
