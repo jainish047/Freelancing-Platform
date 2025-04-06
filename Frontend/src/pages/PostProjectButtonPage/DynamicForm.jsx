@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { FaPaperclip } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { p } from "framer-motion/client";
+import { useSelector } from "react-redux";
 
 const defaultCategory = "full stack web site";
 
@@ -46,7 +47,8 @@ export default function DynamicForm() {
   const [answers, setAnswers] = useState([]);
   const [otherInput, setOtherInput] = useState("");
   
-  const skillsList = ["HTML", "PHP", "MySQL", "Web Hosting", "Javascript", "CSS", "React", "Node.js", "Express", "MongoDB", "Python", "Django", "Flask", "Ruby on Rails", "Java", "Spring Boot", "C#", ".NET"];
+  // const skillsList = ["HTML", "PHP", "MySQL", "Web Hosting", "Javascript", "CSS", "React", "Node.js", "Express", "MongoDB", "Python", "Django", "Flask", "Ruby on Rails", "Java", "Spring Boot", "C#", ".NET"];
+  const skillsList = useSelector(state => state.general.skills);
   const [skills, setSkills] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   
@@ -54,7 +56,7 @@ export default function DynamicForm() {
     if (description) {
       const keywords = description.toLowerCase().split(/\s+/);
       const matchedSkills = skillsList.filter(skill =>
-        keywords.some(keyword => skill.toLowerCase().includes(keyword))
+        keywords.some(keyword => skill.name?.toLowerCase().includes(keyword))
       );
       setSkills(matchedSkills.slice(0, 3));
     }
@@ -142,21 +144,21 @@ export default function DynamicForm() {
           />
           <div className="mt-2 bg-gray-100 p-2 rounded shadow-md max-h-40 overflow-y-auto">
             {skillsList
-              .filter(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()))
+              .filter(skill => skill.name?.toLowerCase().includes(searchTerm.toLowerCase()))
               .map(skill => (
                 <button
-                  key={skill}
+                  key={skill.id}
                   className="border px-3 py-1 rounded bg-white shadow hover:bg-gray-200 transition m-1"
                   onClick={() => handleSkillSelect(skill)}
                 >
-                  {skill}
+                  {skill.name}
                 </button>
               ))}
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {skills.map(skill => (
-              <div key={skill} className="flex items-center bg-blue-100 px-3 py-1 rounded-full">
-                {skill}
+              <div key={skill.id} className="flex items-center bg-blue-100 px-3 py-1 rounded-full">
+                {skill.name}
                 <IoClose className="ml-2 cursor-pointer" onClick={() => handleSkillRemove(skill)} />
               </div>
             ))}

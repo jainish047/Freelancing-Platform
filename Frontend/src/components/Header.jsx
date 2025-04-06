@@ -225,71 +225,74 @@ export default function Header() {
 
         {/* Avatar / Login Button */}
         {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar>
-                <AvatarImage
-                  className="w-10 h-10 cursor-pointer"
-                  src={
-                    user?.profilePic ||
-                    `https://api.dicebear.com/7.x/initials/svg?seed=${
-                      user?.name || user?.companyName || user?.email
-                    }`
-                  }
-                />
-                <AvatarFallback>{(user.name || "U")[0]}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>
-                {user?.name || user?.companyName || user?.email}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  onClick={() => navigate(`/profile/${user.id}`)}
-                  className="cursor-pointer"
-                >
-                  Profile
-                </DropdownMenuItem>
-                {/* <DropdownMenuItem asChild>
-                  <Link to={`/profile/${user?.id}`} className="text-black">Profile</Link>
-                </DropdownMenuItem> */}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-              <DropdownMenuItem
-                  onClick={() => {
-                    navigate("/settings")
-                  }}
-                  className="cursor-pointer"
-                >
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    // dispatch(logoutReducer())
-                    dispatch(logoutUser())
-                      .unwrap()
-                      .then(() => {
-                        navigate("/");
-                      })
-                      .catch((err) => {
-                        toast({
-                          variant: "destructive",
-                          title: "Unable to Logout",
-                          // description:err
-                          duration: 3000, // Auto-hide after 3 seconds                    })
+          <div className="flex items-center gap-2">
+            <Button className="bg-blue-900 hover:bg-white hover:text-black" onClick={()=>navigate("/newProject")}>Post Project</Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar>
+                  <AvatarImage
+                    className="w-10 h-10 cursor-pointer"
+                    src={
+                      user?.profilePic ||
+                      `https://api.dicebear.com/7.x/initials/svg?seed=${
+                        user?.name || user?.companyName || user?.email
+                      }`
+                    }
+                  />
+                  <AvatarFallback>{(user.name || "U")[0]}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>
+                  {user?.name || user?.companyName || user?.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => navigate(`/profile/${user.id}`)}
+                    className="cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  {/* <DropdownMenuItem asChild>
+                    <Link to={`/profile/${user?.id}`} className="text-black">Profile</Link>
+                  </DropdownMenuItem> */}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      navigate("/settings");
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      // dispatch(logoutReducer())
+                      dispatch(logoutUser())
+                        .unwrap()
+                        .then(() => {
+                          navigate("/");
+                        })
+                        .catch((err) => {
+                          toast({
+                            variant: "destructive",
+                            title: "Unable to Logout",
+                            // description:err
+                            duration: 3000, // Auto-hide after 3 seconds                    })
+                          });
                         });
-                      });
-                  }}
-                  className="cursor-pointer"
-                >
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         ) : (
           <div className="flex">
             <Link to="/auth/login">

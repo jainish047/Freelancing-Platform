@@ -12,7 +12,7 @@ import VerifyWait from "./pages/authentication/VerifyWait.jsx";
 import VerifyEmail from "./pages/authentication/VerifyEmail.jsx";
 import Auth from "./pages/authentication/Auth.jsx";
 import Profile from "./pages/Profile.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import ExploreFreelancers from "./pages/ExploreFreelancers.jsx";
 import ExploreProjects from "./pages/projects/ExploreProjects.jsx";
 import Verify from "./pages/authentication/Verify.jsx";
@@ -29,6 +29,10 @@ import ChangePW from "./pages/setting/ChangePW.jsx";
 import UpdateProfile from "./pages/setting/UpdateProfile.jsx";
 import ForgotPW from "./pages/authentication/ForgotPW.jsx";
 import ResetPW from "./pages/authentication/ResetPassword.jsx";
+import DynamicForm from "./pages/PostProjectButtonPage/DynamicForm.jsx";
+import ConfirmationPage from "./pages/PostProjectButtonPage/ConfirmationPage.jsx";
+import PaymentAndBudget from "./pages/PostProjectButtonPage/PaymentAndBudget.jsx";
+import ChatPage from "./pages/Chat/Chat.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -101,6 +105,10 @@ const Router = createBrowserRouter([
             ],
           },
           {
+            path: "chat",
+            element: <ChatPage />,
+          },
+          {
             path: "projectUpdates",
             element: <ProjectUpdates />,
           },
@@ -109,6 +117,18 @@ const Router = createBrowserRouter([
             element: <Notification />,
           },
         ],
+      },
+      {
+        path: "newProject",
+        element: <DynamicForm />,
+      },
+      {
+        path: "PaymentAndBudget",
+        element: <PaymentAndBudget />,
+      },
+      {
+        path: "/PaymentAndBudget/confirmationPage",
+        element: <ConfirmationPage />,
       },
       {
         path: "explore",

@@ -2,7 +2,7 @@ import { Facebook, Twitter, Youtube, Instagram } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-10">
+    <footer className="bg-gray-900 text-white py-10 mt-10">
       <div className="px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
         {/* Brand Section */}
         <div>

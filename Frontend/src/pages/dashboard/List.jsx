@@ -179,7 +179,7 @@ export default function ListPage() {
               </div>
             </div>
           </div>
-          <div className="col-span-3 border rounded shadow p-4 h-full overflow-y-auto">
+          <div className="col-span-3 border rounded shadow p-4 h-full overflow-y-auto flex flex-col gap-2">
             <header>
               <p className="font-semibold text-xl">{selectedList.name}</p>
             </header>

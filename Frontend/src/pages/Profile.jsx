@@ -12,12 +12,14 @@ import {
   FaHeart,
   FaRegHeart,
 } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getUserDetails } from "../API/user";
 import { addToList, removeItemFromList } from "../API/list";
 import { useToast } from "../hooks/use-toast";
+import { startConversation } from "../API/messages";
+import { setCurrentChatUser } from "../context/messageSlice";
 
 const ExpandableSection = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,6 +85,28 @@ const Profile = () => {
       toast({
         variant: "destructive",
         title: err.message || err.response.data.message,
+      });
+    }
+  }
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  async function handleSendMessage() {
+    try {
+      if (!user || user.id === userDetails.id) return;
+
+      const response = await startConversation(user.id, userDetails.id);
+      console.log("start conversation response: ", response);
+      dispatch(
+        setCurrentChatUser({  id: userDetails.id, name: userDetails.name })
+      );
+      navigate(`/chat`);
+
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: err.message || "Failed to start conversation",
       });
     }
   }
@@ -232,7 +256,10 @@ const Profile = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h4 className="font-semibold text-center">Message</h4>
             <div className="text-center my-2">Email: {userDetails.email}</div>
-            <button className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            <button
+              className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg"
+              onClick={handleSendMessage}
+            >
               Send Message
             </button>
             <div className="flex justify-center gap-4 mt-3 text-gray-600">

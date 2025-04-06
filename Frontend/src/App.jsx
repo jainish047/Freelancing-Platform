@@ -9,6 +9,7 @@ import { Toaster } from "./components/ui/toaster";
 import { getCountries, getLanguages, getSkills } from "./context/generalSlice";
 import { getToken } from "./API/authentication";
 import { getLists } from "./context/listSlice";
+import { SocketProvider } from "./context/SocketProvide.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -42,18 +43,20 @@ function App() {
   useEffect(() => {
     if (token) {
       dispatch(fetchUserDetails());
-      dispatch(getLists())
+      dispatch(getLists());
     }
   }, [token, dispatch]);
 
   return (
-    <div className="grid grid-rows-[60px,1fr] h-screen w-screen overflow-hidden">
-      <Header />
-      <div className="h-full w-full overflow-y-auto overflow-x-hidden border">
-        <Outlet />
+    <SocketProvider>
+      <div className="grid grid-rows-[60px,1fr] h-screen w-screen overflow-hidden">
+        <Header />
+        <div className="h-full w-full overflow-y-auto overflow-x-hidden border">
+          <Outlet />
+        </div>
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
+    </SocketProvider>
   );
 }
 

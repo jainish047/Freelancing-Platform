@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Coins, ChevronDown } from 'lucide-react';
 import { useLocation, useNavigate } from "react-router-dom";
@@ -18,20 +18,20 @@ export default function PaymentAndBudget() {
   console.log("Received Data:", { projectName, description, skills, answers });
 
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [budget, setBudget] = useState('');
-
+  const [budget, setBudget] = useState([0, 0]);
+  const [error, setError] = useState('');
 
   const paymentOptions = [
     { value: 'hourly', label: 'Pay by the hour', description: 'Hire based on an hourly rate and pay for hours worked. Best for ongoing projects.' },
     { value: 'fixed', label: 'Pay fixed price', description: 'Agree on a price and release payment when the job is done. Best for one-off tasks.' },
   ];
 
-  const budgetOptions = [
-    { value: 'very-small', label: 'Very small project (₹12,500 - ₹37,500 INR)' },
-    { value: 'small', label: 'Small project (₹37,500 - ₹75,000 INR)' },
-    { value: 'medium', label: 'Medium project (₹75,000 - ₹150,000 INR)' },
-    { value: 'large', label: 'Large project (₹150,000+ INR)' },
-  ];
+  // const budgetOptions = [
+  //   { value: 'very-small', label: 'Very small project (₹12,500 - ₹37,500 INR)' },
+  //   { value: 'small', label: 'Small project (₹37,500 - ₹75,000 INR)' },
+  //   { value: 'medium', label: 'Medium project (₹75,000 - ₹150,000 INR)' },
+  //   { value: 'large', label: 'Large project (₹150,000+ INR)' },
+  // ];
 
   const currencyOptions = [
     { value: 'INR', label: 'INR' },
@@ -40,9 +40,22 @@ export default function PaymentAndBudget() {
   ];
 
   const [selectedCurrency, setSelectedCurrency] = useState('INR');
-  const isNextButtonEnabled = paymentMethod && budget;
+  // const isNextButtonEnabled = paymentMethod && budget[0] > 0 && budget[1] > 0 && budget[0] <= budget[1];
+  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
+  useEffect(() => {
+    if(!paymentMethod || budget[0] === 0 && budget[1] === 0) {
+      setIsNextButtonEnabled(false);
+      setError('');
+    }else if (paymentMethod && budget[0] > 0 && budget[1] > 0 && budget[0] <= budget[1]) {
+      setIsNextButtonEnabled(true);
+      setError('');
+    } else {
+      setIsNextButtonEnabled(false);
+      setError('Please fill in all required fields correctly.');
+    }
+  }, [paymentMethod, budget[0], budget[1]]);
 
-  const selectedBudgetLabel = budgetOptions.find(option => option.value === budget)?.label || 'Not specified';
+  // const selectedBudgetLabel = budgetOptions.find(option => option.value === budget)?.label || 'Not specified';
 
   const handleNext = () => {
     navigate("/PaymentAndBudget/confirmationPage", {
@@ -51,7 +64,10 @@ export default function PaymentAndBudget() {
         description,
         answers ,
         skills,
-        budget: selectedBudgetLabel,
+        selectedCurrency,
+        // budget: selectedBudgetLabel,
+        minBudget: budget[0],
+        maxBudget: budget[1],
         paymentMethod,
       },
     });
@@ -109,7 +125,7 @@ export default function PaymentAndBudget() {
               <ChevronDown className="h-5 w-5 text-gray-500" />
             </div>
           </div>
-          <div className="relative rounded-md shadow-sm flex-grow">
+          {/* <div className="relative rounded-md shadow-sm flex-grow">
             <select
               className="block w-full py-2.5 pl-3 pr-10 leading-5 text-gray-900 bg-white border border-gray-300
                          focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 rounded-md
@@ -129,12 +145,36 @@ export default function PaymentAndBudget() {
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <ChevronDown className="h-5 w-5 text-gray-500" />
             </div>
+          </div> */}
+          <div className='flex gap-2 items-center'>
+            <input
+              type="number"
+              min="0"
+              className="block w-full py-2.5 pl-3 pr-10 leading-5 text-gray-900 bg-white border border-gray-300
+                         focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 rounded-md
+                         sm:text-sm"
+              placeholder="Minimum budget"
+              value={budget[0] || ''}
+              onChange={(e) => setBudget([e.target.value, budget[1]])}
+            />
+            <p>to</p>
+            <input
+              type="number"
+              min="0"
+              className="flex justify-between w-full py-2.5 pl-3 pr-10 leading-5 text-gray-900 bg-white border border-gray-300
+                         focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 rounded-md
+                         sm:text-sm"
+              placeholder="maximum budget"
+              value={budget[1] || ''}
+              onChange={(e) => setBudget([budget[0], e.target.value])}
+            />
           </div>
         </div>
       </div>
 
       {/* Next Button */}
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-end items-center gap-2 mt-8">
+        {error && <p className="text-red-500 text-sm">{error}</p>}  
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

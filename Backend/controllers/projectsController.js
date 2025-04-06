@@ -136,6 +136,123 @@ async function filterProjects(req, res) {
   }
 }
 
+export async function assignProjectToFreelancer(projectId, freelancerId) {
+  try {
+    // 1. Validate project exists
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    // 2. Ensure project is not already assigned
+    if (project.assignedTo) {
+      throw new Error("Project is already assigned to a freelancer");
+    }
+
+    // 3. Validate freelancer existence
+    const freelancer = await prisma.user.findUnique({
+      where: { id: freelancerId },
+    });
+
+    if (!freelancer) {
+      throw new Error("Freelancer not found");
+    }
+
+    // 4. Update project assignment
+    const updatedProject = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        assignedTo: freelancerId,
+        status: "IN_PROGRESS", // make sure enum is valid
+      },
+    });
+
+    return updatedProject;
+  } catch (error) {
+    console.error("[assignProjectToFreelancer]", error);
+    throw new Error(error.message || "Failed to assign project");
+  }
+}
+
+export const postProject = async (req, res) => {
+  try {
+    const {
+      projectName,
+      description,
+      minBudget,
+      maxBudget,
+      paymentMethod,
+      skills,
+      answers,
+    } = req.body.details;
+
+    // Assuming you get userId from JWT/auth middleware
+    const userId = req.user?.id; // Or req.userId depending on your setup
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized, Login Again" });
+    }
+
+    console.log("Received Data:", {
+      projectName,
+      description,
+      minBudget,
+      maxBudget,
+      paymentMethod,
+      skills,
+      answers,
+    });
+
+    if (
+      !projectName ||
+      !description ||
+      !minBudget ||
+      !maxBudget ||
+      !paymentMethod ||
+      !skills ||
+      !answers ||
+      (paymentMethod.toUpperCase() !== "FIXED" &&
+        paymentMethod.toUpperCase() !== "HOURLY")
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // const [purpose, platform, inProjectPaymentMethod] = answers;
+
+    const PURPOSE_Q = "What is the main purpose of the website?";
+    const PLATFORM_Q = "Which platform do you want the site to be built on?";
+    const PAYMENT_Q = "What payment methods do you need integrated?";
+
+    const purpose = answers[PURPOSE_Q];
+    const platform = answers[PLATFORM_Q];
+    const inProjectPaymentMethod = answers[PAYMENT_Q];
+
+    const newProject = await prisma.project.create({
+      data: {
+        userId,
+        title: projectName,
+        description,
+        purpose,
+        platform,
+        inProjectPaymentMethod,
+        minBudget: parseInt(minBudget),
+        maxBudget: parseInt(maxBudget),
+        paymentMethod: paymentMethod.toUpperCase(),
+        skillsRequired: skills.map((skill) => String(skill.id)),
+      },
+    });
+
+    return res
+      .status(201)
+      .json({ message: "Project created", project: newProject });
+  } catch (error) {
+    console.error("Create Project Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export async function getProjectDetails(req, res) {
   try {
     // Extract projectId from the request parameters and current user's id (if available)
@@ -175,8 +292,8 @@ export async function getProjectDetails(req, res) {
       return res.status(404).send({ message: "Project not found" });
     }
 
-    console.log("currentUserId: ", currentUserId)
-    console.log("projectId: ", projectId)
+    console.log("currentUserId: ", currentUserId);
+    console.log("projectId: ", projectId);
 
     // Check if the current user has bookmarked this project (similar to the follow check in userDetails)
     const bookmarkRecord = currentUserId
@@ -270,7 +387,12 @@ async function bidOnProject(req, res, next) {
       },
     });
 
-    console.log("Total Bids:", totalBids, "Average Bid Amount:", averageBidAmount);
+    console.log(
+      "Total Bids:",
+      totalBids,
+      "Average Bid Amount:",
+      averageBidAmount
+    );
 
     // Fetch and return updated bids
     const updatedBids = await prisma.bid.findMany({
@@ -297,7 +419,6 @@ async function bidOnProject(req, res, next) {
     return res.status(500).json({ error: "Internal server error." });
   }
 }
-
 
 export async function getMyProjects(req, res) {
   try {

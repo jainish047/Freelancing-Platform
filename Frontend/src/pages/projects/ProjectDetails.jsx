@@ -146,7 +146,7 @@ const ProjectDetails = () => {
         milestoneDetails,
         id,
       });
-      setProject({ ...project, ...(response.data) });
+      setProject({ ...project, ...response.data });
     } catch (err) {
       console.log("error bidding:->", err.response.data.message || err.message);
       toast({
@@ -316,6 +316,19 @@ const ProjectDetails = () => {
                       <li key={index}>{func}</li>
                     ))}
                 </ul> */}
+              {/* <h3 className="mt-4 font-semibold">Project Type</h3> */}
+              <div className="flex mt-4 gap-2">
+                <p className="font-semibold">Purpose:</p>
+                <p>{project.purpose || "-"}</p>
+              </div>
+              <div className="flex mt-4 gap-2">
+                <p className="font-semibold">Platform:</p>
+                <p>{project.platform || "-"}</p>
+              </div>
+              <div className="flex mt-4 gap-2">
+                <p className="font-semibold">Payment method:</p>
+                <p>{project.inProjectPaymentMethod || "-"}</p>
+              </div>
               <h3 className="mt-4 font-semibold">Required Skills</h3>
               <div className="flex flex-wrap gap-2 mt-2">
                 {project.skillsRequired.map((skill, index) => (

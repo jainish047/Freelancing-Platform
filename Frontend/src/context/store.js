@@ -5,6 +5,7 @@ import projectFilterReducer from "./projectFiltersSlice";
 import freelancerFilterReducer from "./freelancersFliterSlice";
 import generalReducer from "./generalSlice"
 import listsReducer from "./listSlice"
+import chatReducer from "./messageSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     projectFilter: projectFilterReducer,
     freelancerFilters:freelancerFilterReducer,
     lists: listsReducer,
+    chat: chatReducer,
   },
 });
 

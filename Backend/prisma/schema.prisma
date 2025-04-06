@@ -42,6 +42,9 @@ model user {
   bookmarks           bookmark[]
   lists               list[]
   listItems           listItem[]
+  sentMessages        Message[]  @relation("SentMessages")
+  receivedMessages    Message[]  @relation("ReceivedMessages")
+  blogs               Blog[]     @relation("blog")
 
   // Add these fields to resolve the relation error:
   following follow[] @relation("FollowerRelation")
@@ -49,26 +52,29 @@ model user {
 }
 
 model project {
-  id               String        @id @default(uuid())
-  userId           String
-  user             user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
-  title            String
-  description      String
-  minBudget        Int
-  maxBudget        Int
-  status           ProjectStatus @default(OPEN) // Tracks project progress
-  createdAt        DateTime      @default(now())
-  dueDate          DateTime?
-  documents        String[] // Array of document URLs
-  skillsRequired   String[] // Example: ["React", "Node.js"]
-  paymentMethod    PaymentType?
-  noOfBids         Int?
-  averageBidBudget Int?
-  bids             bid[]         @relation("ProjectBids") // All bids on this project
-  assignedTo       String?       @unique // Ensure only one freelancer per project
-  freelancer       user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
-  bookmarks        bookmark[] // Bookmarks for this project
-  listItems        listItem[] // List items for this project
+  id                     String        @id @default(uuid())
+  userId                 String
+  user                   user          @relation("ClientProjects", fields: [userId], references: [id], onDelete: Cascade)
+  title                  String
+  description            String
+  purpose                String?
+  platform               String?
+  inProjectPaymentMethod String?
+  minBudget              Int
+  maxBudget              Int
+  status                 ProjectStatus @default(OPEN) // Tracks project progress
+  createdAt              DateTime      @default(now())
+  dueDate                DateTime?
+  documents              String[] // Array of document URLs
+  skillsRequired         String[] // Example: ["React", "Node.js"]
+  paymentMethod          PaymentType?
+  noOfBids               Int?          @default(0)
+  averageBidBudget       Int?          @default(0)
+  bids                   bid[]         @relation("ProjectBids") // All bids on this project
+  assignedTo             String?       // Nullable, as it may not be assigned to anyone initially
+  freelancer             user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
+  bookmarks              bookmark[] // Bookmarks for this project
+  listItems              listItem[] // List items for this project
 }
 
 model bid {
@@ -175,4 +181,24 @@ model Country {
 model languages {
   id   Int    @id @default(autoincrement())
   name String @unique
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  sender     user     @relation("SentMessages", fields: [senderId], references: [id])
+  senderId   String
+  receiver   user     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId String
+  createdAt  DateTime @default(now())
+}
+
+model Blog {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  imageUrl  String?
+  authorId  String
+  author    user     @relation("blog", fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
 }

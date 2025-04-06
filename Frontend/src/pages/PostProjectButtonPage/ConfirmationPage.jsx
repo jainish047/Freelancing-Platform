@@ -3,17 +3,38 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaLaptopCode } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
+import { postProject } from "../../API/projects";
+import {useToast} from "@/hooks/use-toast"
+
 
 export default function ConfirmationPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { projectName, description, budget, paymentMethod, skills, answers } = location.state || {};
-  
-  console.log("Received Data:", { projectName, description, budget, paymentMethod, skills, answers });
+  const { projectName, description, minBudget, maxBudget, paymentMethod, skills, answers } = location.state || {};
+  const { toast } = useToast();
+  console.log("Received Data:", { projectName, description, minBudget, maxBudget, paymentMethod, skills, answers });
 
-  const handlePostProject = () => {
-    console.log("Project posted successfully!");
-    alert("Project posted successfully!");
+  const handlePostProject = async () => {
+    const details = {projectName, description, minBudget, maxBudget, paymentMethod, skills, answers};
+    try{
+      console.log("posting project details:->", details)
+      const response = await postProject(details)
+      toast({
+        title: response?.data?.message || "Project Posted",
+        // description: "Your project has been posted successfully.",
+        status: "success",
+      })
+      console.log("Project posted successfully!", response);
+      navigate("/projects");
+    }catch(err){
+      toast({
+        title: "Error posting project",
+        description: err?.response?.data?.message || "An error occurred while posting the project.",
+        status: "error",
+      })
+      console.error(err)
+    }
+    // alert("Project posted successfully!");
   };
 
   return (
@@ -31,7 +52,7 @@ export default function ConfirmationPage() {
         {/* Left Side: Project Icon & Budget */}
         <div className="flex flex-col items-center border-r pr-6 border-gray-300 w-1/3">
           <FaLaptopCode className="text-blue-500 text-7xl mb-2" />
-          <div className="text-gray-900 font-semibold text-lg">{budget || "Not specified"}</div>
+          <div className="text-gray-900 font-semibold text-lg">{"INR "+minBudget+"- INR "+maxBudget || "Not specified"}</div>
         </div>
         
         {/* Right Side: Project Details */}
@@ -52,11 +73,13 @@ export default function ConfirmationPage() {
             </div>
           )}
           
-          <div className="mb-3">
+          <div className="mb-3 flex gap-2">
             <span className="font-semibold text-gray-900">Payment Method:</span>
             <p className="text-gray-700">{paymentMethod || "Not specified"}</p>
           </div>
 
+          {/* Skills Section */}
+          <p className="font-semibold text-gray-900 mb-2">Required Skills:</p>
           <div className="flex flex-wrap gap-2">
             {skills && skills.length > 0 ? (
               skills.map((skill, index) => (
@@ -64,7 +87,7 @@ export default function ConfirmationPage() {
                   key={index}
                   className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
                 >
-                  {skill}
+                  {skill.name}
                 </span>
               ))
             ) : (
