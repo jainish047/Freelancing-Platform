@@ -45,6 +45,9 @@ model user {
   sentMessages        Message[]  @relation("SentMessages")
   receivedMessages    Message[]  @relation("ReceivedMessages")
   blogs               Blog[]     @relation("blog")
+  bankAccount         BankAccount? @relation("BankAccount")
+  paid                transaction [] @relation("FromUser")
+  received           transaction[] @relation("ToUser")
 
   // Add these fields to resolve the relation error:
   following follow[] @relation("FollowerRelation")
@@ -75,6 +78,8 @@ model project {
   freelancer             user?         @relation("FreelancerProjects", fields: [assignedTo], references: [id], onDelete: SetNull)
   bookmarks              bookmark[] // Bookmarks for this project
   listItems              listItem[] // List items for this project
+  transactions          transaction[] // Transactions related to this project
+  milestones             milestone[] // Milestones related to this project
 }
 
 model bid {
@@ -201,4 +206,61 @@ model Blog {
   authorId  String
   author    user     @relation("blog", fields: [authorId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model BankAccount {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               user     @relation("BankAccount", fields: [userId], references: [id])
+  accountNumber      String
+  ifsc               String
+  accountHolderName  String
+  verified           Boolean  @default(false)
+  createdAt          DateTime @default(now())
+}
+
+model transaction {
+  id            String      @id @default(uuid())
+  fromUserId    String?
+  toUserId      String?
+  projectId     String?
+  milestoneId   String?
+  amount        Float
+  type          TransactionType // ASSIGNMENT_PAYMENT | MILESTONE_PAYOUT
+  status        TransactionStatus // PENDING | SUCCESS | FAILED
+  createdAt     DateTime    @default(now())
+
+  fromUser      user?       @relation("FromUser", fields: [fromUserId], references: [id])
+  toUser        user?       @relation("ToUser", fields: [toUserId], references: [id])
+  project       project?    @relation(fields: [projectId], references: [id])
+}
+
+enum TransactionType {
+  ASSIGNMENT_PAYMENT
+  MILESTONE_PAYOUT
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model milestone {
+  id          String    @id @default(uuid())
+  projectId   String
+  title       String
+  amount      Float
+  status      MilestoneStatus // PENDING | COMPLETED | PAID
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  project     project   @relation(fields: [projectId], references: [id])
+  // transactions transaction[]
+}
+
+enum MilestoneStatus {
+  PENDING
+  COMPLETED
+  PAID
 }

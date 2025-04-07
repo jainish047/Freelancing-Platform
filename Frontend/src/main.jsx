@@ -33,6 +33,7 @@ import DynamicForm from "./pages/PostProjectButtonPage/DynamicForm.jsx";
 import ConfirmationPage from "./pages/PostProjectButtonPage/ConfirmationPage.jsx";
 import PaymentAndBudget from "./pages/PostProjectButtonPage/PaymentAndBudget.jsx";
 import ChatPage from "./pages/Chat/Chat.jsx";
+import PaymentSetup from "./pages/Payment.jsx";
 
 const Router = createBrowserRouter([
   {
@@ -117,6 +118,10 @@ const Router = createBrowserRouter([
             element: <Notification />,
           },
         ],
+      },
+      {
+        path: "payment",
+        element: <PaymentSetup />,
       },
       {
         path: "newProject",

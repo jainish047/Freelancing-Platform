@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../components/ui/dialog";
+import {Badge} from "../../components/ui/badge";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { addToList, removeItemFromList } from "../../API/list";
 import { useToast } from "../../hooks/use-toast";
@@ -165,6 +166,7 @@ const ProjectDetails = () => {
     <div className="p-6 bg-white shadow-lg rounded-lg h-full w-full overflow-hidden">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">{project.title}</h1>
+        {project.freelancer && <h1 className="text-2xl font-bold">Assigned to: {project.freelancer.name}</h1>}
         <div className="flex flex-col items-end">
           <p className="">No. of Bids: {project.noOfBids || 0}</p>
           <p className="text-xl font-semibold">
@@ -178,6 +180,7 @@ const ProjectDetails = () => {
           <TabsList className="bg-white flex gap-2 justify-start m-3">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="bids">Bids</TabsTrigger>
+            {project.assignedTo && <TabsTrigger value="status">Status</TabsTrigger>}
           </TabsList>
           <div className="flex items-center gap-2">
             {/* <button className="p-0" onClick={handleBookMarkClick}> */}
@@ -385,6 +388,39 @@ const ProjectDetails = () => {
             )}
           </div>
         </TabsContent>
+        {project.assignedTo && <TabsContent value="status">
+          <div className="space-y-6 p-4">
+            <h2 className="text-2xl font-semibold">Project Milestones</h2>
+
+            {project.milestones?.length === 0 ? (
+              <p className="text-gray-500">No milestones defined yet.</p>
+            ) : (
+              <ul className="space-y-4">
+                {project.milestones.map((milestone, index) => (
+                  <li
+                    key={milestone.id}
+                    className="border rounded-xl p-4 shadow-sm"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="text-lg font-bold">
+                          {index + 1}. {milestone.description}
+                        </h3>
+                      </div>
+                      <Badge
+                        variant={
+                          milestone.isCompleted ? "success" : "secondary"
+                        }
+                      >
+                        {milestone.isCompleted ? "Completed" : "Pending"}
+                      </Badge>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </TabsContent>}
       </Tabs>
     </div>
   );

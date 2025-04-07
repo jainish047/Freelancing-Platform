@@ -170,6 +170,17 @@ export async function assignProjectToFreelancer(projectId, freelancerId) {
       },
     });
 
+    // Assume internal transaction: user -> platform
+  // const paymentProcessed = true;
+
+  // if (paymentProcessed) {
+  //   await prisma.project.update({
+  //     where: { id: projectId },
+  //     data: { assignedTo: freelancerId },
+  //   });
+  //   return res.status(200).send({ message: "Freelancer assigned and payment done" });
+  // }
+
     return updatedProject;
   } catch (error) {
     console.error("[assignProjectToFreelancer]", error);
@@ -255,27 +266,21 @@ export const postProject = async (req, res) => {
 
 export async function getProjectDetails(req, res) {
   try {
-    // Extract projectId from the request parameters and current user's id (if available)
     const projectId = req.params.projectId;
     const currentUserId = req.user?.id;
 
-    console.log("fetching project with id:", projectId);
-    console.log("currentUserId:", currentUserId);
-
-    // Validate the existence of projectId
     if (!projectId) {
       return res.status(400).send({ message: "Project id is required" });
     }
 
-    // Retrieve project details with associated user, bids, and freelancer information
+    // 1. Fetch project with associated data
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        user: true, // Project owner info
+        user: true, // project owner
         bids: {
           include: {
             user: {
-              // Bidder's info
               select: {
                 id: true,
                 name: true,
@@ -284,7 +289,13 @@ export async function getProjectDetails(req, res) {
             },
           },
         },
-        freelancer: true, // Assigned freelancer info
+        freelancer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -292,10 +303,7 @@ export async function getProjectDetails(req, res) {
       return res.status(404).send({ message: "Project not found" });
     }
 
-    console.log("currentUserId: ", currentUserId);
-    console.log("projectId: ", projectId);
-
-    // Check if the current user has bookmarked this project (similar to the follow check in userDetails)
+    // 2. Check if current user bookmarked the project
     const bookmarkRecord = currentUserId
       ? await prisma.bookmark.findFirst({
           where: {
@@ -305,22 +313,44 @@ export async function getProjectDetails(req, res) {
         })
       : null;
 
-    console.log("finding if bookmark exist:->", bookmarkRecord);
-
-    // Convert the bookmark record to a boolean flag
     const isBookmarked = !!bookmarkRecord;
 
-    console.log("found project:", project);
-    console.log("isBookmarked:", isBookmarked);
+    // 3. If project assigned, get the assigned freelancer's bid and their milestones
+    let freelancerBid = null;
+    let assignedMilestones = null;
 
-    // Return project details along with the isBookmarked flag
+    if (project.assignedTo) {
+      freelancerBid = await prisma.bid.findFirst({
+        where: {
+          projectId,
+          userId: project.assignedTo,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      if (freelancerBid?.milestones) {
+        assignedMilestones = freelancerBid.milestones; // JSON field
+      }
+    }
+
+    // 4. Final response
     return res.status(200).send({
       ...project,
       isBookmarked,
+      freelancerBid,
+      milestones:assignedMilestones, // ← JSON data from freelancer's bid
       message: "Project details fetched successfully",
     });
   } catch (error) {
-    console.error("error fetching project details:", error);
+    console.error("Error fetching project details:", error);
     return res
       .status(500)
       .send({ message: "Error fetching project details", error });

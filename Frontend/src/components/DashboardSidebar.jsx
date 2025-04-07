@@ -69,7 +69,7 @@ export default function DashboardSidebar() {
           </span>
         </div>
 
-        <div
+        {/* <div
           className="flex flex-col items-center cursor-pointer"
           onClick={() => navigate("/projectUpdates")}
         >
@@ -85,7 +85,7 @@ export default function DashboardSidebar() {
           >
             Updates
           </span>
-        </div>
+        </div> */}
 
         <div
           className="flex flex-col items-center cursor-pointer"
@@ -105,7 +105,7 @@ export default function DashboardSidebar() {
           </span>
         </div>
 
-        <div
+        {/* <div
           className="flex flex-col items-center cursor-pointer"
           onClick={() => navigate("/notification")}
         >
@@ -121,7 +121,7 @@ export default function DashboardSidebar() {
           >
             Notifications
           </span>
-        </div>
+        </div> */}
       </nav>
     </div>
   );

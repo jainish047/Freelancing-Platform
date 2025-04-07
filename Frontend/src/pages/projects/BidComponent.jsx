@@ -21,10 +21,12 @@ import { assignProject } from "../../API/projects";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function BidComponent({ bid }) {
   const [loading, setLoading] = useState(false);
   const {toast} = useToast();
+  const navigate = useNavigate();
 
   const handleAssign = async () => {
     setLoading(true);
@@ -60,6 +62,7 @@ export default function BidComponent({ bid }) {
         //   },
         // },
       })
+      navigate(`/projects`);
     } catch (err) {
       console.error(err);
       // toast.error(err.message);
