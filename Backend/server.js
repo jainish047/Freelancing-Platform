@@ -54,6 +54,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 
+app.use("/api", (req, res) => {return responce.status(200).json({message:"You are Welcome"}));
 app.use("/api/auth", authRouter);
 app.use("/api/general", generalRouter);
 app.use("/api/user", getUserIfThere, userRouter);
