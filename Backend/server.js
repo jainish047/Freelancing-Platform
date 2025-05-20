@@ -56,7 +56,7 @@ app.use(passport.initialize());
 
 app.use("/api", 
         (req, res) => {
-          return responce.status(200).json({message:"You are Welcome"})
+          return res.status(200).json({message:"You are Welcome"})
         }
        );
 app.use("/api/auth", authRouter);
