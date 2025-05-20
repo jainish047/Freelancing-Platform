@@ -37,7 +37,7 @@ const io = new Server(server, {
   cors: {
     origin: "*", // Replace with your frontend URL
     methods: ["GET", "POST"],
-    credentials: true, // Allow cookies
+    //credentials: true, // Allow cookies
   },
 });
 
@@ -47,7 +47,7 @@ const connectedUsers = new Map();
 app.use(
   cors({
     origin: "*", // Replace with your frontend URL
-    credentials: true, // Allow cookies
+    //credentials: true, // Allow cookies
   })
 );
 app.use(cookieParser());
