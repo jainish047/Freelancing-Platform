@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with default settings
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api/',
+  baseURL: 'http://freelancing-platform-backend.up.railway.app/api/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
