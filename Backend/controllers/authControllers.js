@@ -368,7 +368,7 @@ export const loginGoogle = (req, res) => {
     httpOnly: true, // Prevents access via JavaScript
     secure: process.env.NODE_ENV === "production", // Set secure flag in production (HTTPS)
     maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expires in 7 days (milliseconds)
-    sameSite: "lax", // Adjust as needed for cross-site requests
+    sameSite: "none", // Adjust as needed for cross-site requests
   });
 
   // Redirect to the frontend without the token in the URL
