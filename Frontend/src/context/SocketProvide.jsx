@@ -22,7 +22,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket but don't connect immediately
-    socketRef.current = io("http://localhost:3000", {
+    socketRef.current = io(`https://${import.meta.env.VITE_BACKEND_URL}`, {
       autoConnect: false,
     });
 
