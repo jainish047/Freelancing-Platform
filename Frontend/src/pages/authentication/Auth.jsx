@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"; // adjust path based on your pr
 const GoogleButton = ({ onClick }) => {
   const handleGoogleLogin = () => {
     // Redirect the user to your backend's Google OAuth endpoint.
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = `https://${REACT_APP_BACKEND_URL}/api/auth/google`;
   };
   return (
     <button
