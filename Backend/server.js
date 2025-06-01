@@ -33,23 +33,56 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL, // Replace with your frontend URL
-    methods: ["GET", "POST"],
-    credentials: true, // Allow cookies
-  },
-});
 
 const connectedUsers = new Map();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
+  process.env.FRONTEND_URL || "https://freelancing-platform-frontend-blush.vercel.app",
+];
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: process.env.FRONTEND_URL, // Replace with your frontend URL
+//     methods: ["GET", "POST"],
+//     credentials: true, // Allow cookies
+//   },
+// });
+const io = new Server(server, {
+  cors: {
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+});
+
 // CORS setup to allow requests from your frontend (localhost:5173)
+// app.use(
+//   cors({
+//     origin: process.env.FRONTEND_URL, // Replace with your frontend URL
+//     credentials: true, // Allow cookies
+//   })
+// );
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // Replace with your frontend URL
-    credentials: true, // Allow cookies
+    origin: function (origin, callback) {
+      // Allow requests with no origin (e.g., Postman, server-side)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
