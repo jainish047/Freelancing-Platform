@@ -20,12 +20,13 @@ import generalRouter from "./routes/generalRoutes.js";
 import listsRouter from "./routes/listsRoutes.js";
 import freelancersRouter from "./routes/freelancersRoutes.js";
 import messagesRouter from "./routes/messageRoutes.js";
-import blogRouter from "./routes/blogRoutes.js"
+import blogRouter from "./routes/blogRoutes.js";
 
 import prisma from "./prisma/prismaClient.js";
 
 import { EventEmitter } from "events";
 import { getUserIfThere } from "./common/user.js";
+
 // Increase the max listeners to 20 (or any number you find appropriate)
 EventEmitter.defaultMaxListeners = 40;
 
@@ -36,11 +37,6 @@ const server = http.createServer(app);
 
 const connectedUsers = new Map();
 
-// const allowedOrigins = [
-//   process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
-//   process.env.FRONTEND_URL || "https://freelancing-platform-frontend-blush.vercel.app",
-// ];
-
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_URL_LOCAL,
@@ -48,85 +44,27 @@ const allowedOrigins = [
   "http://localhost:5173"
 ].filter(Boolean); // remove undefined
 
-// const io = new Server(server, {
-//   cors: {
-//     origin: process.env.FRONTEND_URL, // Replace with your frontend URL
-//     methods: ["GET", "POST"],
-//     credentials: true, // Allow cookies
-//   },
-// });
+// FIXED: Socket.IO CORS configuration - removed the function call syntax
 const io = new Server(server, {
-  // dynamic cors
-  // cors: {
-  //   origin: function (origin, callback) {
-  //     if (!origin || allowedOrigins.includes(origin)) {
-  //       callback(null, true);
-  //     } else {
-  //       callback(new Error("Not allowed by CORS"));
-  //     }
-  //   },
-
-  // static cors
-  cors({
-    // origin: [
-    //   process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
-    //   process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
-    // ],
+  cors: {
     origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PUT"],
-  })
+  }
 });
 
-// CORS setup to allow requests from your frontend (localhost:5173)
-// app.use(
-//   cors({
-//     origin: process.env.FRONTEND_URL, // Replace with your frontend URL
-//     credentials: true, // Allow cookies
-//   })
-// );
-
-// dynamic cors
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       // Allow requests with no origin (e.g., Postman, server-side)
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-// static cors
-// app.use(cors({
-//   origin: [
-//     process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
-//     process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
-//   ],
-//   credentials: true,
-// }));
-
+// Express CORS configuration
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "DELETE", "PUT"],
 }));
 
-
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 
-// app.use("/api", 
-//         (req, res) => {
-//           return res.status(200).json({message:"You are Welcome"})
-//         }
-//        );
+// Routes
 app.use("/api/auth", authRouter);
 app.use("/api/general", generalRouter);
 app.use("/api/user", getUserIfThere, userRouter);
@@ -187,34 +125,40 @@ io.on("connection", (socket) => {
     console.log("senderId:", senderId);
     console.log("receiverId:", receiverId);
     console.log("content:", content);
-    // Create message in the DB
-    const message = await prisma.message.create({
-      data: { senderId, receiverId, content },
-      include: {
-        sender: {
-          select: {
-            id:true,
-            name: true,
+    
+    try {
+      // Create message in the DB
+      const message = await prisma.message.create({
+        data: { senderId, receiverId, content },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
-        receiver: {
-          select: {
-            id:true,
-            name: true,
-          },
-        },
-      },
-    });
+      });
 
-    // Emit the new message to both sender and receiver (if connected)
-    const receiverSocket = connectedUsers.get(receiverId);
-    if (receiverSocket) {
-      io.to(receiverSocket).emit("newMessage", message);
-    }
-    // Also send to sender (to update local state)
-    const senderSocket = connectedUsers.get(senderId);
-    if (senderSocket) {
-      io.to(senderSocket).emit("newMessage", message);
+      // Emit the new message to both sender and receiver (if connected)
+      const receiverSocket = connectedUsers.get(receiverId);
+      if (receiverSocket) {
+        io.to(receiverSocket).emit("newMessage", message);
+      }
+      // Also send to sender (to update local state)
+      const senderSocket = connectedUsers.get(senderId);
+      if (senderSocket) {
+        io.to(senderSocket).emit("newMessage", message);
+      }
+    } catch (error) {
+      console.error("Error creating message:", error);
+      socket.emit("messageError", { error: "Failed to send message" });
     }
   });
 
@@ -230,11 +174,9 @@ io.on("connection", (socket) => {
   });
 });
 
-// By default, Passport creates a session (for login-based authentication like username/password).
-// Since JWT does not use sessions (it is stateless), we disable sessions with { session: false }.
-// This ensures that Passport does not store authentication data in a session.
+// Use Railway's PORT environment variable or default to 3000
+const PORT = process.env.PORT || 3000;
 
-// app.listen(process.env.PORT);
-server.listen(process.env.PORT, () =>
-  console.log(`Server running on port ${process.env.PORT}`)
-);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
