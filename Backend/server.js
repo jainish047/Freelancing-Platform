@@ -49,17 +49,25 @@ const allowedOrigins = [
 //   },
 // });
 const io = new Server(server, {
-  cors: {
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+  // dynamic cors
+  // cors: {
+  //   origin: function (origin, callback) {
+  //     if (!origin || allowedOrigins.includes(origin)) {
+  //       callback(null, true);
+  //     } else {
+  //       callback(new Error("Not allowed by CORS"));
+  //     }
+  //   },
+
+  // static cors
+  cors({
+    origin: [
+      process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
+      process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
+    ],
     credentials: true,
-    methods: ["GET", "POST"],
-  },
+    methods: ["GET", "POST", "DELETE", "PUT"],
+  })
 });
 
 // CORS setup to allow requests from your frontend (localhost:5173)
@@ -69,19 +77,31 @@ const io = new Server(server, {
 //     credentials: true, // Allow cookies
 //   })
 // );
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (e.g., Postman, server-side)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+
+// dynamic cors
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // Allow requests with no origin (e.g., Postman, server-side)
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
+// static cors
+app.use(cors({
+  origin: [
+    process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
+    process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
+  ],
+  credentials: true,
+}));
+
 
 app.use(cookieParser());
 app.use(express.json());
