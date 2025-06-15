@@ -36,10 +36,17 @@ const server = http.createServer(app);
 
 const connectedUsers = new Map();
 
+// const allowedOrigins = [
+//   process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
+//   process.env.FRONTEND_URL || "https://freelancing-platform-frontend-blush.vercel.app",
+// ];
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
-  process.env.FRONTEND_URL || "https://freelancing-platform-frontend-blush.vercel.app",
-];
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL_LOCAL,
+  "https://freelancing-platform-frontend.vercel.app",
+  "http://localhost:5173"
+].filter(Boolean); // remove undefined
 
 // const io = new Server(server, {
 //   cors: {
@@ -61,10 +68,11 @@ const io = new Server(server, {
 
   // static cors
   cors({
-    origin: [
-      process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
-      process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
-    ],
+    // origin: [
+    //   process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
+    //   process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
+    // ],
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "DELETE", "PUT"],
   })
@@ -94,13 +102,20 @@ const io = new Server(server, {
 // );
 
 // static cors
+// app.use(cors({
+//   origin: [
+//     process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
+//     process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
+//   ],
+//   credentials: true,
+// }));
+
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || "https://freelancing-platform-frontend.vercel.app",
-    process.env.FRONTEND_URL_LOCAL || "http://localhost:5173",
-  ],
+  origin: allowedOrigins,
   credentials: true,
+  methods: ["GET", "POST", "DELETE", "PUT"],
 }));
+
 
 
 app.use(cookieParser());
