@@ -371,6 +371,9 @@ export const loginGoogle = (req, res) => {
     sameSite: "none", // Adjust as needed for cross-site requests
   });
 
+  console.log("ENV:", process.env.NODE_ENV);
+  console.log("secure:", process.env.NODE_ENV==="production");
+
   // Redirect to the frontend without the token in the URL
   res.redirect(process.env.FRONTEND_URL);
 };
